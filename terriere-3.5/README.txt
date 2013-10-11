@@ -15,7 +15,7 @@ The source and binary forms of Terrier are subject to the following
 citation license: 
 
 By downloading Terrier, you agree to cite at least
-one of these three papers describing Terrier in any kind of material 
+one of these three papers (see doc/bibliography.html) describing Terrier in any kind of material 
 you produce where Terrier was used to conduct search or 
 experimentation, whether be it a research paper, dissertation, 
 article, poster, presentation, or documentation. For more information
