@@ -4,3 +4,11 @@
 *.jar
 *.war
 *.ear
+
+*.pyc
+
+*.png
+*.html
+
+terriere-3.5/var/
+
