@@ -223,6 +223,7 @@ def run() :
 
   dr = DocReader(docFileNames)
 
+  #169478 docs
   """
   d =  'meaningless init value'
   while d != None:
