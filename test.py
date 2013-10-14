@@ -1,7 +1,8 @@
 import os
 import re
 from collections import defaultdict
-
+import nltk
+from nltk.stem import PorterStemmer
 
 # represents a document
 class Doc(object):
@@ -11,8 +12,35 @@ class Doc(object):
      self.mainContent = content
 
 
+# TODO
+class Preprocessor():
+  
+  def __init__(self):
+    self.stopwords = nltk.corpus.stopwords.words('english')
+    self.stemmer = PorterStemmer() # works on words
+     
+  
+  # returns a preprocessed word
+  def preprocessWord(self, word):
+    
+    word = re.sub('[^A-Za-z0-9_(-)]+', '', word)
+        
+    if (word == ''): # word was only punctuation
+      return ''
+    if word.lower() in self.stopwords:  
+      return ''
+   
+    word = self.stemmer.stem(word)          
+    
+    if  word.lower() in self.stopwords:  
+      return ''
+    
+    return word
+  
+  def preprocessWords(words):
+    pass
 
-
+# reads in documents one-by-one (see getNextDocFromFiles method)
 class DocReader(object):
 
   startDoc = '<DOC>'
@@ -28,6 +56,8 @@ class DocReader(object):
     self.currentOpenFileName = None
     self.docCounter = 0
     self.fileCounter = 0
+    
+    self.preprocessor = Preprocessor()
 
   # this is for processing the SOURCE, HEADLINE etc. fields
   # when we know we are at the start of a document
@@ -42,8 +72,9 @@ class DocReader(object):
       
       oldLine = line  
       line = re.sub('<.*?>|(\\n)', '', line)
-      line = line.split(' ')
-      fieldValue.extend(line);
+      if line != '':
+        line = line.split(' ')     
+        fieldValue.extend(line);
       
       if '</'+fieldName+'>' in oldLine:
         return fieldValue
@@ -68,8 +99,9 @@ class DocReader(object):
           fieldValue = self.processField(docFile, line, fieldName)
           fieldValues[fieldName] = fieldValue
       line = re.sub('<.*?>|(\\n)', '', line)
-      line = line.split(' ')
-      contentWords.extend(line);
+      if line != '':
+        line = line.split(' ')
+        contentWords.extend(line);
 
   
   # get next document from the files, as a 
@@ -126,12 +158,12 @@ def run() :
 
   dr = DocReader(docFileNames)
 
-  d =  dr.getNextDocFromFiles()
+  d =  'meaningless init value'
 
   while d != None:
     d =  dr.getNextDocFromFiles()
     #print d.mainContent
-    print getDictString(d.fieldContents)
+    #print getDictString(d.fieldContents)
 
 
 if __name__ == '__main__': #if this file is the argument to python
