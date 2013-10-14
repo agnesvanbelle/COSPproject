@@ -102,7 +102,7 @@ class DocReader(object):
     main = False
     
     while True:
-      line = docFile.readline();
+      line = docFile.readline()
 
       if line.startswith(DocReader.endDoc):
         return Doc(contentWords, fieldValues)
@@ -143,7 +143,7 @@ class DocReader(object):
         return self.getNextDocFromFiles()
 
     if line.startswith(DocReader.startDoc):
-        print "Processing doc nr. %d from %s" % (self.docCounter, os.path.basename(self.currentOpenFileName))
+        #print "Processing doc nr. %d from %s" % (self.docCounter, os.path.basename(self.currentOpenFileName))
         thisDoc = self.processDoc(self.currentOpenFile)
         self.docCounter += 1
         return thisDoc
@@ -193,7 +193,29 @@ def variance(avg, values, lengthList) :
             )
 
 
-
+def readQueries(topicFileName) :
+  topicFile = open(topicFileName)
+  queryList = []
+  while True:
+    line = topicFile.readline()
+    if not line:
+      break
+    if line.startswith('<EN-title>'):
+      query= re.search( "<EN-title>(.*?)</EN-title>" , line ).group(1)
+      query = query.strip()
+      queryList.append(query)
+  
+  return queryList
+  
+def queriesToTermList(queryList) :
+  wordList = []
+  preprocessor = Preprocessor()
+  
+  for query in queryList:
+    queryNewList = preprocessor.preprocessWords(query)
+    wordList.extend(queryNewList)
+  
+  return wordList
 
 
 def run() :
@@ -201,13 +223,19 @@ def run() :
 
   dr = DocReader(docFileNames)
 
+  """
   d =  'meaningless init value'
-
   while d != None:
     d =  dr.getNextDocFromFiles()
     #print getDictString(d.fieldContents)
     #print d.mainContentnt
-
+  print dr.docCount
+  """
+  
+  queries = readQueries("/run/media/root/ss-ntfs/3.Documents/huiswerk_20132014/CS&P/project/data1/original-topics-C301-C325-topics.txt")
+  queryWords = queriesToTermList(queries)
+  
+  print queryWords
 
 if __name__ == '__main__': #if this file is the argument to python
   run()
