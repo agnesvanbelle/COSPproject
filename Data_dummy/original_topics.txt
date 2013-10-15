@@ -1,0 +1,19 @@
+<top> 
+<num> C301 </num> 
+<EN-title> Nestle Brands </EN-title>
+<EN-desc> What brands are marketed by Nestlé around the world? </EN-desc> 
+<EN-narr> Relevant articles will report the name of goods marketed globally by 
+Nestlé or by companies belonging to the Nestlé group. In the second case, the 
+document must make clear reference to the parent company. </EN-narr> 
+</top>
+
+<top> 
+<num> C302 </num> 
+<EN-title> Consumer Boycotts </EN-title> 
+<EN-desc> Find documents that describe or discuss the impact of consumer 
+boycotts. </EN-desc> 
+<EN-narr> Relevant documents will report discussions or points of view on the 
+efficacy of consumer boycotts. The moral issues involved in such boycotts are 
+also of relevance. Only consumer boycotts are relevant, political boycotts must 
+be ignored. </EN-narr> 
+</top>
