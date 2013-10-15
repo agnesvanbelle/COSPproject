@@ -223,7 +223,7 @@ def run() :
 
   dr = DocReader(docFileNames)
 
-  #169478 docs
+  #169 478 docs
   """
   d =  'meaningless init value'
   while d != None:
@@ -233,7 +233,7 @@ def run() :
   print dr.docCount
   """
   
-  queries = readQueries("/run/media/root/ss-ntfs/3.Documents/huiswerk_20132014/CS&P/project/data1/original-topics-C301-C325-topics.txt")
+  queries = readQueries("/run/media/root/ss-ntfs/3.Documents/huiswerk_20132014/CS&P/project/data1/original_topics.txt")
   queryWords = queriesToTermList(queries)
   
   print queryWords
