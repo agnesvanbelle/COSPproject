@@ -29,12 +29,12 @@ class SenseClustering(object):
         seeds = hierarchical_clustering_for_seeds(sample,clusters_init list_of_k)
         
         # Do k-means clustering for each k using the aquired seeds
-        
-        ####################
-        
+        clusters = {}
+        for k in list_of_k:
+            clusters[k] = k_means_defined_startpoints(seeds[k])
         # Find best cluster
+        ###############################        
         
-        #######################
     
     
     def hierarchical_clustering_for_seeds(clusters, list_of_k):
@@ -88,7 +88,7 @@ class SenseClustering(object):
             centroids.append(centroid)
         return centroids
     
-    def k_means_defined_startpoints(instances, seeds):
+    def k_means_defined_startpoints(seeds):
         print 'undefined'
     
     def calc_all_eucl_distances(instance_ids):
