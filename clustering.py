@@ -30,11 +30,15 @@ class SenseClustering(object):
         
         # Do k-means clustering for each k using the aquired seeds
         
+        ####################
+        
         # Find best cluster
+        
+        #######################
     
     
     def hierarchical_clustering_for_seeds(clusters, list_of_k):
-        distances = calc_eucl_distances(clusters)
+        distances = calc_all_eucl_distances(clusters)
         current_nr_clusters = len(clusters)
         min_nr_clusters = min(list_of_k)
         max_nr_clusters = max(list_of_k)
@@ -67,37 +71,49 @@ class SenseClustering(object):
             # If now one of the desired number of clusters is achieved
             if current_nr_clusters in list_of_k:
                 # save the centroids of the clusters
-                centroids[current_nr_clusters] = get_centroids(clusters)
-                ######################
+                centroids[current_nr_clusters] = get_centroids(clusters)                
                 
         return centroids
     
     def get_centroids(clusters):
-        print 'undefined'
+        centroids = []
+        for c in clusters:
+            centroid = defaultdict(float)
+            for j in c:                
+                for w in self.con_words:
+                    f = 0                                                 
+                    if w in self.word_inst[j]:
+                        f = self.word_inst[j][w]
+                    centroid[w] += f
+            centroids.append(centroid)
+        return centroids
     
     def k_means_defined_startpoints(instances, seeds):
         print 'undefined'
     
-    def calc_eucl_distances(instance_ids):
+    def calc_all_eucl_distances(instance_ids):
         distances = defaultdict(lambda : defaultdict(int))
         for ind_i in range(len(instance_ids)):
             for ind_j in range(ind_i+1, len(instance_ids)):
                 i = instance_ids[ind_i][0]
                 j = instance_ids[ind_j][0]
                 # calc eucl_distance
-                dist = 0
-                for w in self.con_words:
-                    f1 = 0
-                    f2 = 0
-                    if w in self.word_inst[i]:
-                        f1 = self.word_inst[i][w]
-                    if w in self.word_inst[j]:
-                        f2 = self.word_inst[j][w]
-                    dist += math.pow(f1-f2, 2)    
-                dist = mat.sqrt(float(dist))
+                dist = eucl_distance(self.word_inst[instance_i],word_inst[instance_j])
                 distances[i][j] = dist
                 distances[j][i] = dist
         return distances
+        
+    def eucl_distance(instance_i, instance_j):
+        dist = 0
+        for w in self.con_words:
+            f1 = 0
+            f2 = 0
+            if w in instance_i:
+                f1 = instance_i[w]
+            if w in instance_j:
+                f2 = instance_j[w]
+            dist += math.pow(f1-f2, 2)    
+        dist = math.sqrt(float(dist))
         
     def calc_cluster_distance(c, distances):
         factor = float(1)/ ( (math.pow(len(c),2)- len(c))/2 )
