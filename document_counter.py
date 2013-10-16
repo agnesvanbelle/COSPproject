@@ -8,12 +8,12 @@ class DocCounter(object):
         self.q_words = query_words
         self.d_window = document_window_size
         self.q_window = dsm_window_size        
-        self.q_word_instances = defaultdict(lambda : defaultdict(int))
+        self.q_word_instances = defaultdict(lambda : defaultdict(lambda : defaultdict(int)))
         self.doc_representations = defaultdict(lambda : defaultdict(lambda : defaultdict(int)))
         
 
     def get_representations(self):
-        id = 0
+        doc_id = 0
         for doc in self.documents:
             content = doc.mainContent
             d_length = len(content)
@@ -30,9 +30,11 @@ class DocCounter(object):
                     for w in d_context:
                         # !!!!!!!!!!!!!!!!!!!!!!!!!!!
                         # IK HEB GEEN DOCUMENT ID!!!!                        
-                        self.doc_representations[id][word][w] +=1
-                    for w in q_context:
-                        self.q_word_instances[w][word]+=1
+                        self.doc_representations[doc_id][word][w] +=1
+                        
+                    occurrence_id = len(q_word_instances[w][word])
+                    for w in q_context:                        
+                        self.q_word_instances[w][word][occurrence_id]+=1
                     
-            id+=1        
+            doc_id+=1        
         return (self.q_word_instances, self.doc_representations)
