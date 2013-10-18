@@ -10,5 +10,6 @@
 *.png
 *.html
 
-terriere-3.5/var/
+terriere-3.5/var/index/
+terriere-3.5/var/results/
 

@@ -265,6 +265,7 @@ public class SimpleFileCollection implements Collection/*, DocumentExtractor*/
 			else
 			{	//this file is fine - use it!
 				//this block ensures that DocId is only increased once per file
+				System.out.println("updating docid to " + Docid);
 				Docid++;
 				rtr = true;
 			}

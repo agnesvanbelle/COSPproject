@@ -373,6 +373,9 @@ public class BasicIndexer extends Indexer
 	 */
 	protected void indexDocument(Map<String,String> docProperties, DocumentPostingList _termsInDocument) throws Exception 
 	{
+		
+		System.out.println(docProperties);
+		
 		/* add words to lexicontree */
 		lexiconBuilder.addDocumentTerms(_termsInDocument);
 		/* add doc postings to the direct index */

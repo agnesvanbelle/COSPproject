@@ -23,47 +23,20 @@ TrecDocTags.casesensitive=false
 TrecQueryTags.doctag=TOP
 TrecQueryTags.idtag=NUM
 TrecQueryTags.process=TOP,NUM,TITLE
-TrecQueryTags.skip=DESC,NARR,PAGE
+TrecQueryTags.skip=DESC,NARR
 
-#stopwords file
-#stopwords.filename=/root/Documents/ir_ass2/data/stopwords.txt
+#stop-words file
+stopwords.filename=/run/media/root/ss-ntfs/3.Documents/huiswerk_20132014/CS&P/project/git/stopwords.txt
 
 #the processing stages a term goes through
-termpipelines=Stopwords,WeakPorterStemmer
-
-#To record term positions (blocks) in the index, set
-block.indexing=true
-
-#block indexing can be controlled using several properties:
-#blocks.size=1 = this property records the accuracy of one block
-#blocks.max - how many blocks to record in a document
+termpipelines=Stopwords,PorterStemmer
 
 # topics
-#trec.topics=/root/Documents/ir_ass2/data/topicsoriginal.txt
+trec.topics=/run/media/root/ss-ntfs/3.Documents/huiswerk_20132014/CS&P/project/git/Data_dummy/original_topics.txt
 
 # weighting model
-trec.model=PL2
-c=6
+#trec.model=PL2
 
-#term dependence
-matching.dsms=DFRDependenceScoreModifier
-
-proximity.dependency.type=SD
-
-#size of window: 2 is an exact phrase, 10 is a larger window
-proximity.ngram.length=5
-
-#weight of SD
-proximity.w_o=1
-#weight of FD
-proximity.w_u=1
-
-#for DFR, choose between pBiL and pBiL2
-#true for pBiL
-proximity.norm2=true
-
-#default length normalisation is 1
-proximity.norm2.c=0.05
 
 
 # relevance assessments

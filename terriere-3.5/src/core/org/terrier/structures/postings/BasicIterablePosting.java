@@ -60,7 +60,10 @@ public class BasicIterablePosting extends BasicPostingImpl implements IterablePo
 	public int next() throws IOException {
 		if (numEntries-- <= 0)
 			return EOL;
+	
+		System.out.println("id = " + id + ", reading id in next()");
 		id = bitFileReader.readGamma() + id;
+		System.out.println("id = " + id );
 		tf = bitFileReader.readUnary();
 		return id;
 	}

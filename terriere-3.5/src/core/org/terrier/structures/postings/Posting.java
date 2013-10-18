@@ -60,4 +60,5 @@ public interface Posting {
      * @return an identical posting, but which can be maniulated free of this iterator
      */
     WritablePosting asWritablePosting();
+
 }

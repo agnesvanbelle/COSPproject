@@ -392,7 +392,8 @@ public class TRECCollection implements Collection, DocumentExtractor {
 				else DocumentIDContents.append(tagcontent.toString());
 				
 				ThisDocID = DocumentIDContents.toString();
-				
+				System.out.println(ThisDocID);
+
 				// now looking for useful property tags which should be stored as document properties
 				// assumes that properties come after the docno, but before the document text
 				

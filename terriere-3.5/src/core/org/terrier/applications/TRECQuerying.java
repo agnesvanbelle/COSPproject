@@ -730,6 +730,8 @@ public class TRECQuerying {
 		
 		if (logger.isInfoEnabled())
 			logger.info("Processing query: " + queryId + ": '" + query + "'");
+		System.out.println("boe");
+		
 		matchingCount++;
 		queryingManager.runPreProcessing(srq);
 		queryingManager.runMatching(srq);
@@ -942,6 +944,7 @@ public class TRECQuerying {
 				final MetaIndex metaIndex = index.getMetaIndex();
 				docnos = metaIndex.getItems(metaIndexDocumentKey, set.getDocids());
 			}
+			System.out.println("docnos: " + docnos[0]);
 			return docnos;
 		}
 

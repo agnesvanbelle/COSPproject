@@ -206,6 +206,7 @@ public class CompressingMetaIndexBuilder extends MetaIndexBuilder implements Flu
 		int i=0;
 		for(String value : data)
 		{
+			System.out.println("value: " + value);
 			if (value == null)
 				value = "";
 			else if (value.length() > valueLensChars[i])
@@ -244,6 +245,9 @@ public class CompressingMetaIndexBuilder extends MetaIndexBuilder implements Flu
 			if (lastValues[i] != null && data[forwardKeys[i]].compareTo(lastValues[i]) < 1)
 				forwardKeyValuesSorted[i] = false;
 			lastValues[i] = data[forwardKeys[i]];
+			
+			//TODO !!!!!!!!!!!!!!!!!!!!!!!!!!!!! hier was ik 
+			System.out.println("entryCount: " + entryCount);
 		}
 		entryCount++;
 		

@@ -49,7 +49,11 @@ public class TF_IDF extends WeightingModel {
 	 * A default constructor to make this model.
 	 */
 	public TF_IDF() {
+		
+		
 		super();
+		
+		System.out.println("tf-idf constructor "   );
 	}
 	/** 
 	 * Constructs an instance of TF_IDF
@@ -75,6 +79,9 @@ public class TF_IDF extends WeightingModel {
 	 *		 tf and docLength, and other preset parameters
 	 */
 	public final double score(double tf, double docLength) {
+		
+		System.out.println("Calculating tf-idf in  score(double tf, double docLength)"   );
+		
 		double Robertson_tf = k_1*tf/(tf+k_1*(1-b+b*docLength/averageDocumentLength));
 		double idf = Idf.log(numberOfDocuments/documentFrequency+1);
 		return keyFrequency * Robertson_tf * idf;
@@ -95,6 +102,9 @@ public class TF_IDF extends WeightingModel {
 		double termFrequency,
 		double keyFrequency) 
 	{
+		System.out.println("Calculating tf-idf in score(double tf,	double docLength,	double documentFrequency,	double termFrequency,	double keyFrequency) "  );
+		
+		
 		double Robertson_tf = k_1*tf/(tf+k_1*(1-b+b*docLength/averageDocumentLength));
 		double idf = Idf.log(numberOfDocuments/documentFrequency+1);
 		return keyFrequency*Robertson_tf * idf;

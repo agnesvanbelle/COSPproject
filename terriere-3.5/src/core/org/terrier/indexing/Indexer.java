@@ -314,6 +314,7 @@ public abstract class Indexer
 		for(int i=0;i<docnos.length;i++)
 		{
 			docnos[i] = docnos[i].trim();
+			System.out.println(docnos[i]);
 			if (docnos[i].length() > 0)
 				BUILDER_BOUNDARY_DOCUMENTS.add(docnos[i]);
 		}

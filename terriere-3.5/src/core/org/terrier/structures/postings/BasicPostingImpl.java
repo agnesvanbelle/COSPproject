@@ -49,12 +49,14 @@ public class BasicPostingImpl implements WritablePosting {
 	/** Constructor that sets both id and frequency */
 	public BasicPostingImpl(int docid, int frequency) {
 		super();
+		System.out.println("setting id in constructor");
 		id = docid;
 		tf = frequency;
 	}
 
 	/** {@inheritDoc} */
 	public int getId() {
+		System.out.println("get id");
 		return id;
 	}
 
@@ -65,6 +67,7 @@ public class BasicPostingImpl implements WritablePosting {
 
 	/** Reads the a single posting (not an iterable posting - use BitPostingIndex for that) */
 	public void readFields(DataInput in) throws IOException {
+		System.out.println("setting id in readFields");
 		id = WritableUtils.readVInt(in);
 		tf = WritableUtils.readVInt(in);
 	}
@@ -78,6 +81,7 @@ public class BasicPostingImpl implements WritablePosting {
 	
 	/** Set the id of this posting */
 	public void setId(int _id) {
+		System.out.println("setting id = " + id);
 		id = _id;
 	}
 

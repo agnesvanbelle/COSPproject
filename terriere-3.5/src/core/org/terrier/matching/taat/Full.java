@@ -104,11 +104,15 @@ public class Full extends BaseMatching
 		if (i < 16)
 			mask = (short)(1 << i);
 		
+		int counter = 0;
 		while (postings.next() != IterablePosting.EOL)
 		{
+			System.out.println("assignScores -- doc. counter = " + counter + ", doc. id = " + postings.getId());
+			System.out.println(postings.getClass());
+			counter++;
 			score = plm.score(i);
 			docid = postings.getId();
-			//logger.info("Docid=" + docid + " score=" + score);
+			//System.out.println("Docid=" + docid + " score=" + score);
 			if ((!rs.scoresMap.contains(docid)) && (score > 0.0d))
 				numberOfRetrievedDocuments++;
 			else if ((rs.scoresMap.contains(docid)) && (score < 0.0d))

@@ -428,6 +428,9 @@ public class OldBasicMatching implements Matching {
 		int docid;
 		while((docid = postings.next()) != IterablePosting.EOL)
 		{
+			//System.out.println("docid: " + docid);
+			if (logger.isInfoEnabled())
+				logger.info("Processing docid: " + docid );
 			score = 0;
 
 			for (WeightingModel wmodel: wModels)

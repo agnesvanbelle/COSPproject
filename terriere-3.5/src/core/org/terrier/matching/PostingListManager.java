@@ -177,6 +177,7 @@ public class PostingListManager implements Closeable
 			p.processQuery(mqt, index, this);
 		}
 		logger.info("Query " + mqt.getQueryId() + " with "+ mqt.getTerms().length +" terms has " + termPostings.size() + " posting lists");
+		System.out.println(termPostings.get(0).next());
 		assert termPostings.size() == termStatistics.size();
 	}
 	
@@ -351,12 +352,16 @@ public class PostingListManager implements Closeable
 	 */
 	public double score(int i)
 	{
+		System.out.println("scoring");
 		if (i >= 0)
 			if (i < numTerms)
 			{
 				double score = 0.0d;
-				for (WeightingModel w : termModels.get(i))
+				for (WeightingModel w : termModels.get(i)) {
+					//System.out.println(w.getInfo());
+					System.out.println("termPostings.size(): " + termPostings.size() + ", termPostings.get(i).getId(): " + termPostings.get(i).getId());
 					score += w.score(termPostings.get(i));
+				}
 				return score;
 			}
 
