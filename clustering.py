@@ -76,7 +76,7 @@ class SenseClustering(object):
         if c != 1:            
             factor = factor/(c*(c-1))
         # calculate validation index
-        return (total_wc_distance + factor * total_bc_distance) / (min_dist + 1.0 / c)
+        return (total_wc_distance + factor * total_bc_distance) / (min_dist + (1.0 / c))
     
     def hierarchical_clustering_for_seeds(self, clusters, list_of_k):
         distances = self.calc_all_eucl_distances(clusters)
