@@ -17,3 +17,46 @@ efficacy of consumer boycotts. The moral issues involved in such boycotts are
 also of relevance. Only consumer boycotts are relevant, political boycotts must 
 be ignored. </EN-narr> 
 </top>
+
+<top> 
+<num> C303 </num> 
+<EN-title> Italian paintings </EN-title> 
+<EN-desc> Find information on places where Italian paintings or drawings are 
+exhibited or on show to the public. </EN-desc> 
+<EN-narr> Relevant documents will report the locations of permanent or temporary 
+exhibitions of Italian paintings anywhere in the world. Information on where 
+single paintings or drawings by Italian artists are on public view in museums, 
+art galleries, or similar, is also of interest. The information provided must be 
+sufficient to identify the exact location, e.g. the name of a city or country is 
+not sufficient. </EN-narr> 
+</top>
+
+<top> 
+<num> C304 </num> 
+<EN-title> World Heritage Sites </EN-title> 
+<EN-desc> Give the names and/or location of places that have been designated as 
+UNESCO World Heritage Sites of outstanding beauty or importance. </EN-desc> 
+<EN-narr> Relevant documents must mention the name and/or geographical location 
+of monuments, cities or places that have been officially designated by UNESCO as 
+World Heritage sites of outstanding beauty or importance. Discussions on 
+potential or candidate sites are not relevant. It must be clear from the 
+document that the official UNESCO status is involved. </EN-narr> 
+</top>
+
+<top> 
+<num> C305 </num> 
+<EN-title> Oil Prices </EN-title> 
+<EN-desc> What is the current price of oil? </EN-desc> 
+<EN-narr> Only documents giving the current oil price are relevant, i.e. the 
+price when the document was written. References to oil prices in the past or 
+predictions for price changes in the future are not relevant. </EN-narr> 
+</top>
+
+<top> 
+<num> C306 </num> 
+<EN-title> ETA Activities in France </EN-title> 
+<EN-desc> Find documents reporting activities of the Basque terrorist group ETA in France. </EN-desc> 
+<EN-narr> Only documents describing activities of the Basque terrorist group ETA 
+in French territory, whether armed, political, financial, or other, are 
+relevant. ETA activities in Spain are not relevant. </EN-narr> 
+</top>

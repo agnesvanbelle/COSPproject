@@ -2,9 +2,10 @@ from collections import defaultdict
 import threading
 import time
 import multiprocessing
-
+import sys
 
 import docreader
+import utilities
 
 class DocCounter(threading.Thread):
   
@@ -41,11 +42,11 @@ class DocCounter(threading.Thread):
           q_context = content[max(0, i-self.q_window):i] + content[i+1: min(i+1+self.q_window, d_length+1)]
           #print "q_context: %s " % q_context
           for w in d_context:        
-            self.doc_representations[doc_id][word][w] +=1
+            self.doc_representations[doc_id][word][w] +=1 # d_i -> q_j -> count
             
           occurrence_id = len(self.q_word_instances[w][word])
           for w in q_context:            
-            self.q_word_instances[w][word][occurrence_id]+=1          
+            self.q_word_instances[w][word][occurrence_id]+=1    # w_i -> q_j -> k -> count      
           
       DocCounter.docCount += 1
       if DocCounter.docCount % 1000 == 0:
@@ -78,8 +79,9 @@ class DocCounterManager(object):
     return docList
   
   def getCounts(self):
-    nrDocs = 10
+    nrDocs = 50
     docList = self.getSomeDocs(nrDocs)
+    contextWordDictsList = []
     
     start = 0
     interval = nrDocs / self.nrProcessors
@@ -105,21 +107,72 @@ class DocCounterManager(object):
       
     print "Done preprocessing."
     
+    
     for t in self.threads:
-      (qWordInstances, docRepresentations) = t.get_representations()
-      print "qwordinstances len: %d" % len(qWordInstances)
+      (contextWordsToQueries, docRepresentations) = t.get_representations()
+      print "contextWordsToQueries len: %d" % len(contextWordsToQueries)
       print "docrepr. len: %s" % len(docRepresentations)
-      
+      #print "\nqwordinstances: %s" % utilities.getDictString(contextWordsToQueries)
+      #print "\ndocrepr: %s" % utilities.getDictString(docRepresentations)
+      contextWordDictsList.append(contextWordsToQueries)
 
+    contextWordDict = self.mergeContextWordDicts(contextWordDictsList)
+    print "contextWordDict len: %d " % len(contextWordDict)
+    
+    print contextWordDict['year']['world']
+    print contextWordDict['year']['franc']
+    
+  def mergeContextWordDicts(self, listDicts):
+    smallestLen = sys.maxint
+    smallest = -1
+    smallestDict = None
+    
+    for i in range(0, len(listDicts)):
+      d = listDicts[i]
+      l = len(d)
+      if l > 0 and l < smallestLen:
+        smallesLen = l
+        smallest = i
+    
+    smallestDict = listDicts[smallest]
+    listDicts.pop(smallest)
+    
+    # TODO: houd avg. bij voor variantie enz.
+    newDict = defaultdict(lambda : defaultdict(lambda : defaultdict(int)))
+    for wi, qj_k_count in smallestDict.iteritems():
+      newDict[wi] = smallestDict[wi]
+      for o in range(0, len(listDicts)):
+        otherDict = listDicts[o]
+        #print "otherDict: %s " % otherDict
+        #qj_k_count_otherDict = otherDict[wi]
+        for queryWord, occurrence_id_dict in otherDict[wi].iteritems():
+          for occurrence_id, value in occurrence_id_dict.iteritems():
+            
+            start_new_occ = len(newDict[wi][queryWord])
+            """
+            #if value > 0 and wi == 'polic':
+            if True:
+              print "queryWord: %s" % queryWord
+              print "newDict[wi][queryWord]: %s" % newDict[wi][queryWord]              
+              print "start_new_occ: %d" % start_new_occ
+              print "occurrence_id otherDict: %s"  % occurrence_id
+              #print "otherDict[wi][queryWord]: %s " % otherDict[wi][queryWord]
+            """
+            newDict[wi][queryWord][start_new_occ] += value
+          
+        
+    
+    return newDict
+    
 #169 478 docs
 def run() :
-  docFileNames  = docreader.getFileNames("/run/media/root/ss-ntfs/3.Documents/huiswerk_20132014/CS&P/project/data1/docs")
+  docFileNames  = utilities.getFileNames("Data_dummy/collection")
   
   pp = docreader.Preprocessor("stopwords.txt")
   dr = docreader.DocReader(docFileNames , pp)
   
   
-  queries = docreader.readQueries("/run/media/root/ss-ntfs/3.Documents/huiswerk_20132014/CS&P/project/data1/original_topics.txt")
+  queries = docreader.readQueries("Data_dummy/original_topics.txt")
   queryWords = docreader.queriesToTermList(queries)
   
   print queryWords
