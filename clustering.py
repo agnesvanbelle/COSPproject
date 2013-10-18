@@ -86,9 +86,8 @@ class SenseClustering(object):
         centroids = {}
         
         while current_nr_clusters>=min_nr_clusters:
-            print clusters
+            self.print_clusters(clusters)
             print
-            # cluster two closest clusters                      
             current_pair = None
             current_dist = float("inf")
             cluster_keys = clusters.keys()
@@ -98,11 +97,11 @@ class SenseClustering(object):
                     c1 = cluster_keys[i]
                     c2 = cluster_keys[j]
                     dist = self.calc_cluster_distance(clusters[c1]+clusters[c2], distances)
-                    
                     if dist<current_dist:
                         current_dist = dist
                         current_pair = (c1,c2)
             
+            # cluster two closest clusters                      
             clusters[cluster_id] = clusters[current_pair[0]]+clusters[current_pair[1]]
             del clusters[current_pair[0]]
             del clusters[current_pair[1]]
@@ -117,6 +116,14 @@ class SenseClustering(object):
                 
         return centroids
     
+    def print_clusters(self, clusters):
+        for c in clusters:
+            l = clusters[c]
+            print(c),
+            for i in range(len(l)):
+                print(l[i]),
+            print('\n'),
+            
     def get_centroids(self, clusters):
         centroids = {}
         for c in clusters:
@@ -196,7 +203,6 @@ class SenseClustering(object):
             if w in instance_j:
                 f2 = instance_j[w]
             dist += math.pow(f1-f2, 2)    
-            # print f1, 'f1', f2, 'f2'
         dist = math.sqrt(float(dist))
         
         return dist
@@ -207,5 +213,5 @@ class SenseClustering(object):
         for i in range(len(c)):
             for j in range(i+1, len(c)):                
                 dist += distances[c[i]][c[j]]
-        dist = dist * factor
+        return dist * factor
         
