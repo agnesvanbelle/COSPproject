@@ -40,11 +40,13 @@ class Preprocessor():
       return ''
     
     word = word.lower()
-      
-    word = self.stemmer.stem(word)          
     
     if  word in self.stopwords:  
       return ''
+      
+    word = self.stemmer.stem(word)          
+    
+    
     
     return word
   
