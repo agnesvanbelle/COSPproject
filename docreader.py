@@ -8,7 +8,8 @@ from nltk.stem import PorterStemmer
 # represents a document
 class Doc(object):
 
-   def __init__(self,content, fieldValues=defaultdict(list)) :
+   def __init__(self,docID, content, fieldValues=defaultdict(list)) :
+     self.ID = docID
      self.fieldContents = fieldValues
      self.mainContent = content
 
@@ -16,11 +17,17 @@ class Doc(object):
 # preprocesses words
 class Preprocessor():
   
-  def __init__(self):
-    self.stopwords = nltk.corpus.stopwords.words('english')
+  def __init__(self, stopWordsFileName="stopwords.txt"):
+    self.stopWordsFileName = stopWordsFileName
+    self.stopwords = self.readStopWords()
     self.stemmer = PorterStemmer() # works on words
      
-  
+  def readStopWords(self):
+    f = open(self.stopWordsFileName)
+    lines = [line.strip() for line in f]
+    f.close()
+    return lines
+    
   # returns a preprocessed word
   def preprocessWord(self, word):
     
@@ -62,10 +69,13 @@ class DocReader(object):
   startMain = '<TEXT>'
   endMain = '</TEXT>'
   
+  startID = '<DOCNO>'
+  endID = '</DOCNO>'
+  
   fieldList = ['HEADLINE', 'BYLINE',  'SOURCE', 'FLAG', 'SECTION']
 
 
-  def __init__(self, listOfFileNames):
+  def __init__(self, listOfFileNames, preprocessor):
 
     self.listOfFileNames = list(reversed(listOfFileNames))
     self.currentOpenFile = None
@@ -73,7 +83,7 @@ class DocReader(object):
     self.docCounter = 0
     self.fileCounter = 0
     
-    self.preprocessor = Preprocessor()
+    self.preprocessor = preprocessor 
 
   # this is for processing the SOURCE, HEADLINE etc. fields
   # when we know we are at the start of a document
@@ -98,6 +108,7 @@ class DocReader(object):
 
     fieldValues = defaultdict(list)
     contentWords =  []
+    docID = None
     
     main = False
     
@@ -105,8 +116,12 @@ class DocReader(object):
       line = docFile.readline()
 
       if line.startswith(DocReader.endDoc):
-        return Doc(contentWords, fieldValues)
+        return Doc(docID, contentWords, fieldValues)
         break;
+      
+      if line.startswith(DocReader.startID):
+        docID = self.processField(docFile, line, 'DOCNO')[0]
+        
       for fieldName in DocReader.fieldList:
         if line.startswith('<'+fieldName+'>'):
           fieldValue = self.processField(docFile, line, fieldName)
@@ -149,14 +164,6 @@ class DocReader(object):
         return thisDoc
 
 
-
-def Clusterer(Object):
-  
-  def __init__(self):
-    pass
-    
-  def clusterValidityScore(self):
-    pass
 
 
 
@@ -221,17 +228,21 @@ def queriesToTermList(queryList) :
 def run() :
   docFileNames  = getFileNames("/run/media/root/ss-ntfs/3.Documents/huiswerk_20132014/CS&P/project/data1/docs")
 
-  dr = DocReader(docFileNames)
+  pp = Preprocessor("stopwords.txt")
+  dr = DocReader(docFileNames, pp)
 
   #169 478 docs
-  """
+  
+  number = 10
   d =  'meaningless init value'
-  while d != None:
+  while d != None and number > 0:
     d =  dr.getNextDocFromFiles()
+    number -= 1
     #print getDictString(d.fieldContents)
     #print d.mainContentnt
-  print dr.docCount
-  """
+    print d.ID
+  print dr.docCounter
+  
   
   queries = readQueries("/run/media/root/ss-ntfs/3.Documents/huiswerk_20132014/CS&P/project/data1/original_topics.txt")
   queryWords = queriesToTermList(queries)
