@@ -21,12 +21,15 @@ class DocCounter(threading.Thread):
     self.q_window = dsm_window_size    
     self.q_word_instances = defaultdict(lambda : defaultdict(lambda : defaultdict(int)))
     self.doc_representations = defaultdict(lambda : defaultdict(lambda : defaultdict(int)))
-    
+    self.totalOccurrencePerQueryWord = defaultdict(lambda: defaultdict(int)) # wi -> qj -> count
+
   def run(self):
     self.make_representations()
 
   def make_representations(self):
     
+
+
     for doc in self.documents:
       content = doc.mainContent
       doc_id = doc.ID
@@ -46,42 +49,47 @@ class DocCounter(threading.Thread):
             
           occurrence_id = len(self.q_word_instances[w][word])
           for w in q_context:            
-            self.q_word_instances[w][word][occurrence_id]+=1    # w_i -> q_j -> k -> count      
+            self.q_word_instances[w][word][occurrence_id]+=1    # w_i -> q_j -> k -> count     
+            self.totalOccurrencePerQueryWord[w][word] += 1 
           
       DocCounter.docCount += 1
       if DocCounter.docCount % 1000 == 0:
         print "%d docs  processed." % (DocCounter.docCount + 1)
         
   def get_representations(self):
-    return (self.q_word_instances, self.doc_representations)
+    return (self.q_word_instances, self.doc_representations, self.totalOccurrencePerQueryWord)
     
     
 class DocCounterManager(object):
   
-  def __init__(self, docReader, queryWords):
+  def __init__(self, docReader, queryWords, nrDocsToReadLimit=sys.maxint):
     self.nrProcessors = multiprocessing.cpu_count()   
     self.threads = [None]*self.nrProcessors
     self.docReader = docReader
     self.queryWords = queryWords
-  
+    self.nrDocsToReadLimit = nrDocsToReadLimit
    
-  def getSomeDocs(self, number = 10) :    
+  def getSomeDocs(self, limit = 10) :    
     d =  'meaningless init value'
     docList = []
-    while d != None and number > 0:
+    while d != None and limit > 0:
       d =  self.docReader.getNextDocFromFiles()
-      number -= 1
-      #print getDictString(d.fieldContents)
-      #print d.mainContentnt
-      #print d.ID
-      docList.append(d)
+      if d != None:
+        limit -= 1
+        #print getDictString(d.fieldContents)
+        #print d.mainContentnt
+        #print d.ID
+        docList.append(d)
     print "docReader.docCounter: %d" % self.docReader.docCounter
     return docList
   
   def getCounts(self):
-    nrDocs = 50
-    docList = self.getSomeDocs(nrDocs)
+    
+    docList = self.getSomeDocs(self.nrDocsToReadLimit)
     contextWordDictsList = []
+    totalContextWordCountsDictList = []
+    
+    nrDocs = len(docList)
     
     start = 0
     interval = nrDocs / self.nrProcessors
@@ -100,29 +108,41 @@ class DocCounterManager(object):
       end = end + interval
 
     for t in self.threads:
-        t.start()
+      t.start()
         
     for t in self.threads:
       t.join()
       
-    print "Done preprocessing."
+    print "Done counting."
     
     
     for t in self.threads:
-      (contextWordsToQueries, docRepresentations) = t.get_representations()
+      (contextWordsToQueries, docRepresentations, totalOccurrencePerQueryWord) = t.get_representations()
       print "contextWordsToQueries len: %d" % len(contextWordsToQueries)
       print "docrepr. len: %s" % len(docRepresentations)
+      print "totalOccurrencePerQueryWord len: %s " % len(totalOccurrencePerQueryWord)
+      
       #print "\nqwordinstances: %s" % utilities.getDictString(contextWordsToQueries)
       #print "\ndocrepr: %s" % utilities.getDictString(docRepresentations)
       contextWordDictsList.append(contextWordsToQueries)
+      totalContextWordCountsDictList.append(totalOccurrencePerQueryWord)
+      
+      #print contextWordsToQueries['year']['world']
+      #print contextWordsToQueries['year']['franc']
 
-    contextWordDict = self.mergeContextWordDicts(contextWordDictsList)
-    print "contextWordDict len: %d " % len(contextWordDict)
+    (contextWordDict, contextWordTotalDict) = self.mergeContextWordDicts(contextWordDictsList, totalContextWordCountsDictList)
     
+    #print "contextWordDict len: %d " % len(contextWordDict)    
     print contextWordDict['year']['world']
     print contextWordDict['year']['franc']
     
-  def mergeContextWordDicts(self, listDicts):
+    print contextWordTotalDict['year']['world']
+    print contextWordTotalDict['year']['franc']
+    
+    
+    self.dimensionalityReduction(contextWordDict, contextWordTotalDict)
+    
+  def mergeContextWordDicts(self, listDicts, listDictsTotal):
     smallestLen = sys.maxint
     smallest = -1
     smallestDict = None
@@ -135,20 +155,29 @@ class DocCounterManager(object):
         smallest = i
     
     smallestDict = listDicts[smallest]
+    smallestDictTotal = listDictsTotal[smallest]
+    
     listDicts.pop(smallest)
     
-    # TODO: houd avg. bij voor variantie enz.
+    
     newDict = defaultdict(lambda : defaultdict(lambda : defaultdict(int)))
+    newTotalDict = defaultdict(lambda: defaultdict(int)) # wi -> qj -> count
+    
     for wi, qj_k_count in smallestDict.iteritems():
       newDict[wi] = smallestDict[wi]
-      for o in range(0, len(listDicts)):
-        otherDict = listDicts[o]
-        #print "otherDict: %s " % otherDict
-        #qj_k_count_otherDict = otherDict[wi]
+      newTotalDict[wi] = smallestDictTotal[wi]
+      
+      for otherDict in listDicts:        
+        
         for queryWord, occurrence_id_dict in otherDict[wi].iteritems():
           for occurrence_id, value in occurrence_id_dict.iteritems():
             
             start_new_occ = len(newDict[wi][queryWord])
+            
+            newDict[wi][queryWord][start_new_occ] += value
+            
+            newTotalDict[wi][queryWord] += value
+            
             """
             #if value > 0 and wi == 'polic':
             if True:
@@ -158,11 +187,30 @@ class DocCounterManager(object):
               print "occurrence_id otherDict: %s"  % occurrence_id
               #print "otherDict[wi][queryWord]: %s " % otherDict[wi][queryWord]
             """
-            newDict[wi][queryWord][start_new_occ] += value
+            
           
         
     
-    return newDict
+    return (newDict, newTotalDict)
+    
+  # TODO: keep track of k largest-variance-having contetx words
+  def dimensionalityReduction(self, contextWordDict, contextWordTotalDict):
+    variancePerContextWord = defaultdict(float)
+    
+    nrQueryWords = len(self.queryWords)
+    
+    for contextWord, queryDict in contextWordTotalDict.iteritems():
+      l = []
+      for queryWord in self.queryWords:
+        l.append(queryDict[queryWord])
+        
+      total = sum(l)
+      avg = total / float( nrQueryWords)
+      
+      variance = utilities.variance(avg, l, nrQueryWords) 
+      #print variance
+      
+  
     
 #169 478 docs
 def run() :

@@ -1,6 +1,7 @@
 import os
 import math
 
+# recursively get all filenames in (sub)directories
 def getFileNames(directory) :
   l = os.listdir(directory)
   l2 = []
@@ -14,6 +15,7 @@ def getFileNames(directory) :
 
   return l2
 
+# print a dictionary neatly
 def getDictString(d) :
   s = ""
   if len(d) > 0:
@@ -33,3 +35,16 @@ def variance(avg, values, lengthList) :
                 float(lengthList)
             )
 
+
+# Shannon entropy
+def entropy(l, sumL=None):
+  if sumL == None:
+    sumL = float(sum(l))
+  l = [x/sumL for x in l]
+
+  entrSum = 0.0
+  for prob in l:
+    if prob != 0:
+      entrSum += (prob * math.log(prob,2))
+
+  return (-1) * entrSum

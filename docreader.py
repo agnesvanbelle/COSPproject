@@ -168,6 +168,8 @@ class DocReader(object):
 
 
 
+def DocReaderManager(object):
+  pass
 
 
 
@@ -196,6 +198,8 @@ def queriesToTermList(queryList) :
   return wordList
 
 
+# TODO: deel filenames door nr_processors
+# maak ook threaded
 def run() :
   docFileNames  = getFileNames("/run/media/root/ss-ntfs/3.Documents/huiswerk_20132014/CS&P/project/data1/docs")
 
