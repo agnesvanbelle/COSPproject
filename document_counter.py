@@ -85,9 +85,9 @@ class DocCounterWorker(threading.Thread):
 #     the k ones with the highest variance over queries (per query, NOT per query *instance*)
 #     in
 #     w_i -> q_j_k -> count
-#     d_i -> q_j -> w_l -> count (!!!! TODO)
+#     d_i -> q_j -> w_l -> count 
 #
-# 3. convert: (!!!! TODO)
+# 3. convert: 
 #     w_i -> q_j_k -> count  to q_j_k -> w_i -> count
 #
 class DocCounter(object):
@@ -100,7 +100,67 @@ class DocCounter(object):
     self.nrDocsToReadLimit = nrDocsToReadLimit
     self.maxContextWords = maxContextWords # for dim. reduction
 
-  def getSomeDocs(self, limit = 10) :
+    self.querySensesDict = None
+    self.docInstancesDict = None
+
+  # return the query sense dict
+  # q_j -> k -> w_i -> count  (k = occurrance nr. of query word)
+  def getQuerySensesDict(self):
+    
+    if self.querySensesDict == None:
+      self.calcCounts()
+    
+    return self.querySensesDict
+  
+  # return query instances dict (per doc)
+  # d_i -> q_j -> w_k -> count
+  def getDocInstancesDict(self):
+    if self.docInstancesDict == None:
+      self.calcCounts()
+    
+    return self.docInstancesDict
+    
+  # calculate 
+  #
+  # d_i -> q_j -> w_k -> count (query instances dict (per doc))
+  # and
+  # q_j -> k -> w_i -> count (query sense dict)
+  #
+  # get raw counts per thread
+  # merge  the results of the threads
+  # dimensionality reduction
+  # re-representing the w->q format of contexWordDict to q->w format
+  # normalize each vector per query sense/instance to probability distribution
+  #
+  # finally, makes attributes of them
+  # @see self.getQuerySensesDict and self.getDocInstancesDict
+  def calcCounts(self):
+
+    (contextWordDictsList, docRepresentationsDict, totalContextWordCountsDictList) = self.getRawCounts()
+    
+    (contextWordDict, contextWordTotalDict) = self.mergeContextWordDicts(contextWordDictsList, totalContextWordCountsDictList)
+
+    """
+    print contextWordDict['year']['world']
+    print contextWordDict['year']['franc']
+
+    print contextWordTotalDict['year']['world']
+    print contextWordTotalDict['year']['franc']
+    """
+        
+    (contextWordDict, docRepresentationsDict, cwList) =  self.dimReduction(contextWordDict, contextWordTotalDict, docRepresentationsDict)
+
+    self.turnAround(contextWordDict)
+
+    self.normalizeToProbs(contextWordDict, docRepresentationsDict, cwList)
+    
+    self.querySensesDict = contextWordDict
+    self.docInstancesDict = docRepresentationsDict
+    
+  # get list of documents (limit = self.nrDocsToReadLimit)
+  # using DocReader attribute object
+  def getSomeDocs(self) :
+    limit = self.nrDocsToReadLimit
     d =  'meaningless init value'
     docList = []
     while d != None and limit > 0:
@@ -114,24 +174,37 @@ class DocCounter(object):
     print "docReader.docCounter: %d" % self.docReader.docCounter
     return docList
 
-  def getCounts(self):
 
-    docList = self.getSomeDocs(self.nrDocsToReadLimit)
+  # get the raw counts needed to later
+  # compute the query sense vectors
+  # and the document instances vectors 
+  # using DocCounterWorker attribute object
+  # as thread, returns a list with results per thread
+  #
+  # w_i -> q_j_k -> count (contextWordDictsList)
+  # d_i -> q_j -> w_l -> count (docRepresentationsDict)
+  # and
+  # w_i -> q_j-> count (totalContextWordCountsDictList) (added for the computation of the variance per w_i)
+  #
+  # !returned as a list the size of the number of threads!
+  def getRawCounts(self):
+    docList = self.getSomeDocs()
+    
     contextWordDictsList = []
     totalContextWordCountsDictList = []
 
     nrDocs = len(docList)
-
     start = 0
     interval = nrDocs / self.nrProcessors
     end = start + interval
 
+    print "Start counting. Using %d threads." % self.nrProcessors
+    
     for i in range(0, self.nrProcessors) :
       if (i == (self.nrProcessors-1)):
         end = nrDocs
 
       docsSubset = docList[start:end]
-      print "start: %d, end: %d" % (start,end)
 
       self.threads[i] = DocCounterWorker( docsSubset, self.queryWords)
 
@@ -144,6 +217,7 @@ class DocCounter(object):
     for t in self.threads:
       t.join()
 
+
     print "Done counting."
 
 
@@ -153,34 +227,21 @@ class DocCounter(object):
       print "docrepr. len: %s" % len(docRepresentationsDict)
       print "totalOccurrencePerQueryWord len: %s " % len(totalOccurrencePerQueryWord)
 
-      #print "\nqwordinstances: %s" % utilities.getDictString(contextWordsToQueries)
-      #print "\ndocrepr: %s" % utilities.getDictString(docRepresentations)
+      """
+      print "\nqwordinstances: %s" % utilities.getDictString(contextWordsToQueries)
+      print "\ndocrepr: %s" % utilities.getDictString(docRepresentations)
+      """
       contextWordDictsList.append(contextWordsToQueries)
       totalContextWordCountsDictList.append(totalOccurrencePerQueryWord)
+      
+      """
+      print contextWordsToQueries['year']['world']
+      print contextWordsToQueries['year']['franc']
+      """      
+    return (contextWordDictsList, docRepresentationsDict, totalContextWordCountsDictList)  
 
-      #print contextWordsToQueries['year']['world']
-      #print contextWordsToQueries['year']['franc']
-
-    (contextWordDict, contextWordTotalDict) = self.mergeContextWordDicts(contextWordDictsList, totalContextWordCountsDictList)
-
-    #print "contextWordDict len: %d " % len(contextWordDict)
-    print contextWordDict['year']['world']
-    print contextWordDict['year']['franc']
-
-    print contextWordTotalDict['year']['world']
-    print contextWordTotalDict['year']['franc']
-
-    (contextWordDict, docRepresentationsDict, cwList) =  self.dimReduction(contextWordDict, contextWordTotalDict, docRepresentationsDict)
-
-    contextWordDict = self.turnAround(contextWordDict)
-
-    self.normalizeToProbs(contextWordDict, docRepresentationsDict, cwList)
     
-    #print utilities.getDictString( contextWordDict)
-    #print utilities.getDictString( docRepresentationsDict)
-
-
-  
+  # normalize counts per query sense/instance to probabilities
   def normalizeToProbs(self, contextWordDict, docRepresentationsDict, cwList):
     
     for q in contextWordDict:
@@ -200,7 +261,10 @@ class DocCounter(object):
           if counter > 0:
             for w in docRepresentationsDict[d][q]:
               docRepresentationsDict[d][q][w] = docRepresentationsDict[d][q][w] / float(counter)
-    
+  
+  
+  # re-representing the w->q format of contexWordDict to q->w format
+  # for the query sense dict
   def turnAround(self, contextWordDict):
 
     newContextWordDict  = defaultdict(lambda : defaultdict(lambda : defaultdict(int)))
@@ -212,8 +276,11 @@ class DocCounter(object):
 
     del contextWordDict
 
-    return newContextWordDict
+    contextWordDict = newContextWordDict
 
+
+  # merge raw counts divided over threads
+  # @see self.getRawCounts
   def mergeContextWordDicts(self, listDicts, listDictsTotal):
     smallestLen = sys.maxint
     smallest = -1
@@ -254,6 +321,11 @@ class DocCounter(object):
     return (newDict, newTotalDict)
 
 
+  # dimensionality reduction of the nr. of context words
+  # keep the self.maxContextWords ones with highes variance
+  #
+  # currently for both query sense vectors (contextWordDict) as well as
+  # document instance vectors (docRepresentationsDict)
   def dimReduction(self, contextWordDict, contextWordTotalDict, docRepresentationsDict):
     cwList = self.getContextWordsLargestVariance( contextWordTotalDict)
 
@@ -275,11 +347,7 @@ class DocCounter(object):
     return (newContextWordDict, newDocRepresentationsDict, cwList)
 
 
-
-
-
-
-
+  #@see self.dimReduction
   def getContextWordsLargestVariance(self, contextWordTotalDict):
     heap = []
     cwList = []
@@ -330,7 +398,11 @@ def run() :
 
 
   dcm = DocCounter(dr, queryWords)
-  dcm.getCounts()
-
+  queryDict = dcm.getQuerySensesDict()
+  docDict =  dcm.getDocInstancesDict()
+  
+  print utilities.getDictString( queryDict)
+  print utilities.getDictString( docDict)
+    
 if __name__ == '__main__': #if this file is the argument to python
   run()
