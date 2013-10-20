@@ -265,6 +265,8 @@ class DocReaderManager(object):
     self.docList = docList
     f1.close()
     
+    
+
 def readQueries(topicFileName) :
   topicFile = open(topicFileName)
   queryList = []

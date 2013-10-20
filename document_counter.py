@@ -9,7 +9,7 @@ import pprint
 
 import docreader
 import utilities
-from docreader import Doc
+from docreader import Doc # needed for pickling call
 
 # Extract term counts from a given set of documents
 #
@@ -59,7 +59,7 @@ class DocCounterWorker(threading.Thread):
           for w in d_context:
             self.doc_representations[doc_id][word][w] +=1 # d_i -> q_j -> w_l -> count
 
-          occurrence_id = len(self.q_word_instances[w][word])
+          occurrence_id = len(self.q_word_instances[w][word]) #occurance instance of query word
           for w in q_context:
             self.q_word_instances[w][word][occurrence_id]+=1    # w_i -> q_j -> k -> count
             self.totalOccurrencePerQueryWord[w][word] += 1 # wi -> qj -> count
@@ -104,7 +104,8 @@ class DocCounter(object):
     
     self.querySensesDict = None
     self.docInstancesDict = None
-
+    self.finalContextWords = None
+    
   # return the query sense dict
   # q_j -> k -> w_i -> count  (k = occurrance nr. of query word)
   def getQuerySensesDict(self):
@@ -149,16 +150,17 @@ class DocCounter(object):
     print contextWordTotalDict['year']['world']
     print contextWordTotalDict['year']['franc']
     """
-        
+    
+    # cwList =  list of context words remained
     (contextWordDict, docRepresentationsDict, cwList) =  self.dimReduction(contextWordDict, contextWordTotalDict, docRepresentationsDict)
 
-    self.turnAround(contextWordDict)
+    contextWordDict = self.turnAround(contextWordDict)
 
     self.normalizeToProbs(contextWordDict, docRepresentationsDict, cwList)
     
     self.querySensesDict = contextWordDict
     self.docInstancesDict = docRepresentationsDict
-  
+    self.finalContextWords = cwList
   
   # get list of documents (limit = self.nrDocsToReadLimit)
   # using DocReader attribute object
@@ -280,7 +282,7 @@ class DocCounter(object):
 
     del contextWordDict
 
-    contextWordDict = newContextWordDict
+    return newContextWordDict
 
 
   # merge raw counts divided over threads
@@ -385,6 +387,22 @@ class DocCounter(object):
 
     return cwList
 
+def getQueriesAndQuerySensesDictAndCW():
+  docFileNames  = utilities.getFileNames("Data_dummy/collection2")
+
+  drm = docreader.DocReaderManager(docFileNames , "stopwords.txt")
+
+
+  queries = docreader.readQueries("Data_dummy/original_topics.txt")
+  queryWords = docreader.queriesToTermList(queries)
+
+
+
+  dcm = DocCounter(drm, queryWords, loadDocsFromFile=True)
+  queryDict = dcm.getQuerySensesDict()
+  cw = dcm.finalContextWords
+  
+  return (queryWords, queryDict, cw)
 
 #169 478 docs
 def run() :
@@ -400,7 +418,7 @@ def run() :
 
 
 
-  dcm = DocCounter(drm, queryWords, loadDocsFromFile=False)
+  dcm = DocCounter(drm, queryWords, loadDocsFromFile=True)
   queryDict = dcm.getQuerySensesDict()
   docDict =  dcm.getDocInstancesDict()
   
