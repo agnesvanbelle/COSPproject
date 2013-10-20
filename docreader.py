@@ -4,7 +4,10 @@ from collections import defaultdict
 import nltk
 from nltk.stem import PorterStemmer
 #from nltk.stem.snowball import EnglishStemmer as SnowballStemmer
-
+import threading
+import time
+import multiprocessing
+import cPickle as pickle
 
 import utilities
 
@@ -66,7 +69,7 @@ class Preprocessor():
     return newWordList
 
 # reads in documents one-by-one (see getNextDocFromFiles method)
-class DocReader(object):
+class DocReader(threading.Thread):
 
   startDoc = '<DOC>'
   endDoc = '</DOC>';
@@ -79,17 +82,35 @@ class DocReader(object):
   
   fieldList = ['HEADLINE', 'BYLINE',  'SOURCE', 'FLAG', 'SECTION']
 
-
+  docCounter = 0
+  fileCounter = 0
+    
   def __init__(self, listOfFileNames, preprocessor):
 
+    threading.Thread.__init__(self)
+    
     self.listOfFileNames = list(reversed(listOfFileNames))
     self.currentOpenFile = None
     self.currentOpenFileName = None
-    self.docCounter = 0
-    self.fileCounter = 0
+    
     
     self.preprocessor = preprocessor 
-
+    
+    self.docList = []
+    
+  def run(self):
+    d =  'meaningless init value'
+    
+    while d != None :
+      d =  self.getNextDocFromFiles()
+      if d != None:
+        #print getDictString(d.fieldContents)
+        #print d.mainContentnt
+        #print d.ID
+        self.docList.append(d)
+      
+    
+  
   # this is for processing the SOURCE, HEADLINE etc. fields
   # when we know we are at the start of a document
   def processField(self, docFile, line, fieldName):
@@ -153,8 +174,8 @@ class DocReader(object):
       else:
         self.currentOpenFileName = self.listOfFileNames.pop()
         self.currentOpenFile = open(self.currentOpenFileName)
-        print "Processing file nr. %d: %s " % (self.fileCounter, os.path.basename(self.currentOpenFileName))
-        self.fileCounter += 1
+        print "Processing file (nr. ~ %d) : %s " % (DocReader.fileCounter, os.path.basename(self.currentOpenFileName))
+        DocReader.fileCounter += 1
 
     line = self.currentOpenFile.readline();
 
@@ -163,18 +184,79 @@ class DocReader(object):
         return self.getNextDocFromFiles()
 
     if line.startswith(DocReader.startDoc):
-        #print "Processing doc nr. %d from %s" % (self.docCounter, os.path.basename(self.currentOpenFileName))
+        #print "Processing doc nr. %d from %s" % (DocReader.docCounter, os.path.basename(self.currentOpenFileName))
         thisDoc = self.processDoc(self.currentOpenFile)
-        self.docCounter += 1
+        DocReader.docCounter += 1
         return thisDoc
 
 
 
-def DocReaderManager(object):
-  pass
+class DocReaderManager(object):
+  
+  
+  def __init__(self, fileNameList, preprocessorStopwordsFile="stopwords.txt"):
+    self.fileNameList = fileNameList
+    self.preprocessorStopwordsFile = preprocessorStopwordsFile
+    
+    self.docList = []
+    
+  def parseDocs(self):
+    self.nrProcessors = multiprocessing.cpu_count()
+    nrFiles = len(self.fileNameList)
+    
+    self.nrThreads  = min(self.nrProcessors, nrFiles)
+    self.threads = [None]*self.nrThreads
+    
+    
+    start = 0
+    interval = nrFiles / self.nrThreads
+    end = start + interval
+
+    print "Start reading. Using %d threads." % self.nrThreads
+    
+    for i in range(0, self.nrThreads) :
+      if (i == (self.nrThreads-1)):
+        end = nrFiles
+
+      filesSubset = self.fileNameList[start:end+1]
+
+      print "start:%d, end:%d, filesSubset: %s " % (start, end, filesSubset)
+      
+      self.threads[i] = DocReader( filesSubset , Preprocessor(self.preprocessorStopwordsFile))
+
+      start = end + 1
+      end = end + interval 
+
+    for t in self.threads:
+      t.start()
+
+    for t in self.threads:
+      t.join()
+
+    print "Done reading."
+
+    for t in self.threads:
+      
+      self.docList.extend(t.docList)
+      
+    return self.docList
+
+  def getDocs(self, fromFile=False):
+    if fromFile:
+      self.loadDocs()
+  
+    else:
+      self.parseDocs()
+    
+    return self.docList
+      
+  def pickleDocs():
+    pickle.dump( self.docList, open( "alldocs.dat", "wb" ) )
 
 
-
+  def loadDocs():
+    self.docList = pickle.load( open( "alldocs.dat", "rb" ) )
+    
 def readQueries(topicFileName) :
   topicFile = open(topicFileName)
   queryList = []
@@ -200,31 +282,23 @@ def queriesToTermList(queryList) :
   return wordList
 
 
-# TODO: deel filenames door nr_processors
-# maak ook threaded
 def run() :
-  docFileNames  = getFileNames("/run/media/root/ss-ntfs/3.Documents/huiswerk_20132014/CS&P/project/data1/docs")
+  docFileNames  = utilities.getFileNames("Data_dummy/collection2")
 
-  pp = Preprocessor("stopwords.txt")
-  dr = DocReader(docFileNames, pp)
+
+  dr = DocReaderManager(docFileNames, "stopwords.txt")
 
   #169 478 docs
   
-  number = 10
-  d =  'meaningless init value'
-  while d != None and number > 0:
-    d =  dr.getNextDocFromFiles()
-    number -= 1
-    #print getDictString(d.fieldContents)
-    #print d.mainContentnt
-    print d.ID
-  print dr.docCounter
+  print docFileNames
+  allDocs = dr.getDocs()
   
   
-  queries = readQueries("/run/media/root/ss-ntfs/3.Documents/huiswerk_20132014/CS&P/project/data1/original_topics.txt")
+  queries = readQueries("Data_dummy/original_topics.txt")
   queryWords = queriesToTermList(queries)
   
   print queryWords
-
+  
+  
 if __name__ == '__main__': #if this file is the argument to python
   run()

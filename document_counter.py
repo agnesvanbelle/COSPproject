@@ -92,10 +92,10 @@ class DocCounterWorker(threading.Thread):
 #
 class DocCounter(object):
 
-  def __init__(self, docReader, queryWords, maxContextWords = 50, nrDocsToReadLimit=sys.maxint):
+  def __init__(self, docReaderManager, queryWords, maxContextWords = 50, nrDocsToReadLimit=sys.maxint):
     self.nrProcessors = multiprocessing.cpu_count()
     self.threads = [None]*self.nrProcessors
-    self.docReader = docReader
+    self.docReaderManager = docReaderManager
     self.queryWords = queryWords
     self.nrDocsToReadLimit = nrDocsToReadLimit
     self.maxContextWords = maxContextWords # for dim. reduction
@@ -156,10 +156,12 @@ class DocCounter(object):
     
     self.querySensesDict = contextWordDict
     self.docInstancesDict = docRepresentationsDict
-    
+  
+  
   # get list of documents (limit = self.nrDocsToReadLimit)
   # using DocReader attribute object
   def getSomeDocs(self) :
+    """
     limit = self.nrDocsToReadLimit
     d =  'meaningless init value'
     docList = []
@@ -173,7 +175,8 @@ class DocCounter(object):
         docList.append(d)
     print "docReader.docCounter: %d" % self.docReader.docCounter
     return docList
-
+    """
+    return self.docReaderManager.getDocs()
 
   # get the raw counts needed to later
   # compute the query sense vectors
@@ -188,6 +191,7 @@ class DocCounter(object):
   #
   # !returned as a list the size of the number of threads!
   def getRawCounts(self):
+    
     docList = self.getSomeDocs()
     
     contextWordDictsList = []
@@ -204,7 +208,7 @@ class DocCounter(object):
       if (i == (self.nrProcessors-1)):
         end = nrDocs
 
-      docsSubset = docList[start:end]
+      docsSubset = docList[start:end+1]
 
       self.threads[i] = DocCounterWorker( docsSubset, self.queryWords)
 
@@ -217,9 +221,7 @@ class DocCounter(object):
     for t in self.threads:
       t.join()
 
-
     print "Done counting."
-
 
     for t in self.threads:
       (contextWordsToQueries, docRepresentationsDict, totalOccurrencePerQueryWord) = t.get_representations()
@@ -386,8 +388,7 @@ class DocCounter(object):
 def run() :
   docFileNames  = utilities.getFileNames("Data_dummy/collection")
 
-  pp = docreader.Preprocessor("stopwords.txt")
-  dr = docreader.DocReader(docFileNames , pp)
+  drm = docreader.DocReaderManager(docFileNames , "stopwords.txt")
 
 
   queries = docreader.readQueries("Data_dummy/original_topics.txt")
@@ -397,12 +398,12 @@ def run() :
 
 
 
-  dcm = DocCounter(dr, queryWords)
+  dcm = DocCounter(drm, queryWords)
   queryDict = dcm.getQuerySensesDict()
   docDict =  dcm.getDocInstancesDict()
   
   print utilities.getDictString( queryDict)
-  print utilities.getDictString( docDict)
+  #print utilities.getDictString( docDict)
     
 if __name__ == '__main__': #if this file is the argument to python
   run()
