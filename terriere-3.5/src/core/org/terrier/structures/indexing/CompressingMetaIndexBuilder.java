@@ -247,7 +247,7 @@ public class CompressingMetaIndexBuilder extends MetaIndexBuilder implements Flu
 			lastValues[i] = data[forwardKeys[i]];
 			
 			//TODO !!!!!!!!!!!!!!!!!!!!!!!!!!!!! hier was ik 
-			System.out.println("entryCount: " + entryCount);
+			System.out.println("entryCount: " + entryCount + ", doc id:" + key);
 		}
 		entryCount++;
 		

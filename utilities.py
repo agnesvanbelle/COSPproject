@@ -1,5 +1,6 @@
 import os
 import math
+from collections import defaultdict
 
 # recursively get all filenames in (sub)directories
 def getFileNames(directory) :
@@ -16,11 +17,16 @@ def getFileNames(directory) :
   return l2
 
 # print a dictionary neatly
-def getDictString(d) :
+def getDictString(d, depth=0) :
   s = ""
   if len(d) > 0:
     for k, v in d.iteritems():
-      s += "\n\t%s --> %s " % (k, v)
+      for i in range(0, depth):
+          s += '\t'    
+      if isinstance(v, defaultdict) or isinstance(v, dict):            
+        s += "%s --> \n%s\n" % (k, getDictString(v, depth+1))
+      else:     
+        s += "%s --> %s\n" % (k, v)
   else:
     s =  "{}"
   return s

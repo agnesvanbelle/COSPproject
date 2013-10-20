@@ -36,6 +36,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -944,7 +945,7 @@ public class TRECQuerying {
 				final MetaIndex metaIndex = index.getMetaIndex();
 				docnos = metaIndex.getItems(metaIndexDocumentKey, set.getDocids());
 			}
-			System.out.println("docnos: " + docnos[0]);
+			//System.out.println("docnos: " + Arrays.toString(docnos));
 			return docnos;
 		}
 
