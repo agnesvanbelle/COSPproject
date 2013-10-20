@@ -239,7 +239,6 @@ class DocReaderManager(object):
       
       self.docList.extend(t.docList)
       
-    return self.docList
 
   def getDocs(self, fromFile=False):
     if fromFile:
@@ -250,12 +249,21 @@ class DocReaderManager(object):
     
     return self.docList
       
-  def pickleDocs():
-    pickle.dump( self.docList, open( "alldocs.dat", "wb" ) )
+  def saveDocs(self):
+    if self.docList == []:
+      self.parseDocs()
+      
+    print "Saving docs."
+    file1 = open( "alldocs.dat", "wb" )
+    pickle.dump( self.docList, file1, -1  )
+    file1.close()
 
-
-  def loadDocs():
-    self.docList = pickle.load( open( "alldocs.dat", "rb" ) )
+  def loadDocs(self):
+    print "Loading saved docs."
+    f1 = open( "alldocs.dat", "rb" ) 
+    docList = pickle.load( f1 )
+    self.docList = docList
+    f1.close()
     
 def readQueries(topicFileName) :
   topicFile = open(topicFileName)
@@ -291,8 +299,8 @@ def run() :
   #169 478 docs
   
   print docFileNames
-  allDocs = dr.getDocs()
   
+  dr.getDocs(True)
   
   queries = readQueries("Data_dummy/original_topics.txt")
   queryWords = queriesToTermList(queries)

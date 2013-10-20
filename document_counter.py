@@ -9,6 +9,7 @@ import pprint
 
 import docreader
 import utilities
+from docreader import Doc
 
 # Extract term counts from a given set of documents
 #
@@ -92,14 +93,15 @@ class DocCounterWorker(threading.Thread):
 #
 class DocCounter(object):
 
-  def __init__(self, docReaderManager, queryWords, maxContextWords = 50, nrDocsToReadLimit=sys.maxint):
+  def __init__(self, docReaderManager, queryWords, maxContextWords = 50, nrDocsToReadLimit=sys.maxint, loadDocsFromFile=False):
     self.nrProcessors = multiprocessing.cpu_count()
     self.threads = [None]*self.nrProcessors
     self.docReaderManager = docReaderManager
     self.queryWords = queryWords
     self.nrDocsToReadLimit = nrDocsToReadLimit
     self.maxContextWords = maxContextWords # for dim. reduction
-
+    self.loadDocsFromFile = loadDocsFromFile
+    
     self.querySensesDict = None
     self.docInstancesDict = None
 
@@ -176,7 +178,7 @@ class DocCounter(object):
     print "docReader.docCounter: %d" % self.docReader.docCounter
     return docList
     """
-    return self.docReaderManager.getDocs()
+    return self.docReaderManager.getDocs(self.loadDocsFromFile)
 
   # get the raw counts needed to later
   # compute the query sense vectors
@@ -386,7 +388,7 @@ class DocCounter(object):
 
 #169 478 docs
 def run() :
-  docFileNames  = utilities.getFileNames("Data_dummy/collection")
+  docFileNames  = utilities.getFileNames("Data_dummy/collection2")
 
   drm = docreader.DocReaderManager(docFileNames , "stopwords.txt")
 
@@ -398,7 +400,7 @@ def run() :
 
 
 
-  dcm = DocCounter(drm, queryWords)
+  dcm = DocCounter(drm, queryWords, loadDocsFromFile=False)
   queryDict = dcm.getQuerySensesDict()
   docDict =  dcm.getDocInstancesDict()
   
