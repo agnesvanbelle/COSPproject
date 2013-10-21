@@ -54,8 +54,8 @@ class SenseClustering(object):
       print
 
     print 'best k value: %d' %best_k
-    print clusters[best_k][0]
-    print utilities.getDictString(clusters[best_k][1])
+    #print clusters[best_k][0]
+    #print utilities.getDictString(clusters[best_k][1])
     return clusters[best_k][1]
 
   def calc_validation_index(self, assignment, centroids):
@@ -84,6 +84,7 @@ class SenseClustering(object):
     # calculate validation index
     return (total_wc_distance + factor * total_bc_distance) / (min_dist + (1.0 / c))
 
+  # TODO add something so it still works in there's only 1 vector
   def hierarchical_clustering_for_seeds(self, clusters, list_of_k):
     distances = self.calc_all_eucl_distances(clusters)
     current_nr_clusters = len(clusters)

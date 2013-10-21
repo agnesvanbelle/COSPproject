@@ -56,7 +56,7 @@ def rl_test():
   
   clusterer = SenseClustering(allQuerySenses, allContextWords)
   
-  clusterer.buckshot_clustering([2,3])
+  print utilities.getDictString(clusterer.buckshot_clustering([2,3]))
   
 if __name__ == '__main__': #if this file is the argument to python
   #simple_test()

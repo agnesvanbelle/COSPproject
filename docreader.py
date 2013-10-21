@@ -200,6 +200,7 @@ class DocReaderManager(object):
     
     self.docList = []
     
+    
   def parseDocs(self):
     self.nrProcessors = multiprocessing.cpu_count()
     nrFiles = len(self.fileNameList)
@@ -240,27 +241,27 @@ class DocReaderManager(object):
       self.docList.extend(t.docList)
       
 
-  def getDocs(self, fromFile=False):
-    if fromFile:
-      self.loadDocs()
+  def getDocs(self, fileName=None):
+    if fileName != None:
+      self.loadDocs(fileName)
   
     else:
       self.parseDocs()
     
     return self.docList
       
-  def saveDocs(self):
+  def saveDocs(self, fileName="alldocs.dat"):
     if self.docList == []:
       self.parseDocs()
       
     print "Saving docs."
-    file1 = open( "alldocs.dat", "wb" )
+    file1 = open( fileName, "wb" )
     pickle.dump( self.docList, file1, -1  )
     file1.close()
 
-  def loadDocs(self):
+  def loadDocs(self, fileName):
     print "Loading saved docs."
-    f1 = open( "alldocs.dat", "rb" ) 
+    f1 = open( fileName, "rb" ) 
     docList = pickle.load( f1 )
     self.docList = docList
     f1.close()
@@ -302,7 +303,8 @@ def run() :
   
   print docFileNames
   
-  dr.getDocs(True)
+  dr.getDocs()
+  dr.saveDocs("alldocs2.dat")
   
   queries = readQueries("Data_dummy/original_topics.txt")
   queryWords = queriesToTermList(queries)

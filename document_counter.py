@@ -93,14 +93,15 @@ class DocCounterWorker(threading.Thread):
 #
 class DocCounter(object):
 
-  def __init__(self, docReaderManager, queryWords, maxContextWords = 50, nrDocsToReadLimit=sys.maxint, loadDocsFromFile=False):
+  def __init__(self,  queryWords, maxContextWords = 50, nrDocsToReadLimit=sys.maxint, docReaderManager=None, docFileName=None, docList=None):
     self.nrProcessors = multiprocessing.cpu_count()
     self.threads = [None]*self.nrProcessors
     self.docReaderManager = docReaderManager
     self.queryWords = queryWords
     self.nrDocsToReadLimit = nrDocsToReadLimit
     self.maxContextWords = maxContextWords # for dim. reduction
-    self.loadDocsFromFile = loadDocsFromFile
+    self.docFileName = docFileName
+    self.docList = docList
     
     self.querySensesDict = None
     self.docInstancesDict = None
@@ -180,8 +181,14 @@ class DocCounter(object):
     print "docReader.docCounter: %d" % self.docReader.docCounter
     return docList
     """
-    return self.docReaderManager.getDocs(self.loadDocsFromFile)
-
+    if self.docList != None:
+      return self.docList
+    elif self.docReaderManager != None:
+      return self.docReaderManager.getDocs(self.docFileName)
+    else:
+      return []
+      
+      
   # get the raw counts needed to later
   # compute the query sense vectors
   # and the document instances vectors 
@@ -418,7 +425,7 @@ def run() :
 
 
 
-  dcm = DocCounter(drm, queryWords, loadDocsFromFile=True)
+  dcm = DocCounter(queryWords, docReaderManager=drm, docFileName="alldocs.dat")
   queryDict = dcm.getQuerySensesDict()
   docDict =  dcm.getDocInstancesDict()
   
