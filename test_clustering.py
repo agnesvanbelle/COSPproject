@@ -54,7 +54,7 @@ def rl_test():
   
   resultPerQuery  = clusterer.resultPerQuery
   
-  print utilities.getDictString(resultPerQuery[queryWords[2]])
+  # print utilities.getDictString(resultPerQuery[queryWords[2]])
   
 if __name__ == '__main__': #if this file is the argument to python
   #simple_test()

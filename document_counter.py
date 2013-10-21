@@ -401,6 +401,7 @@ def getQueriesAndQuerySensesDictAndCW():
 
 
   queries = docreader.readQueries("Data_dummy/original_topics.txt")
+  print queries
   queryWords = docreader.queriesToTermList(queries)
 
 
