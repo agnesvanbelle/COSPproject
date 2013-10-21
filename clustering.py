@@ -100,14 +100,20 @@ class SenseClustering(threading.Thread):
       self.word_inst = self.word_instances_per_query[q]
       self.nr_instances = len(self.word_inst)
       
-      self.resultPerQuery[q] = self.buckshot_clustering(self.list_of_k) # 'bla'
+      if self.nr_instances > max(self.list_of_k):
+        self.resultPerQuery[q] = self.buckshot_clustering(self.list_of_k) # 'bla'
+      else:
+        single_cluster = defaultdict(list)
+        for inst in self.word_inst:
+          single_cluster[0].append(inst)
+        self.resultPerQuery[q] = self.get_centroids(single_cluster)
      
   def getResultPerQuery(self):
     return self.resultPerQuery
       
   def buckshot_clustering(self, list_of_k):
     # Get the random sample for hierarchical clustering
-    sample_size = int( math.sqrt(self.nr_instances))
+    sample_size = int( math.sqrt(self.nr_instances))+1
     clusters_init = {}
     occurrences = self.word_inst.keys()
     for i in range(sample_size):
@@ -134,8 +140,6 @@ class SenseClustering(threading.Thread):
     # Find best cluster
     for k in list_of_k:
       (assignment, centroids) = clusters[k]
-      print assignment
-      print
       validation_score = self.calc_validation_index(assignment, centroids)
       if validation_score<best_v:
         best_v = validation_score
@@ -183,8 +187,8 @@ class SenseClustering(threading.Thread):
     centroids = {}
 
     while current_nr_clusters>=min_nr_clusters:
-      self.print_clusters(clusters)
-      print
+      # self.print_clusters(clusters)
+      # print
       current_pair = None
       current_dist = float("inf")
       cluster_keys = clusters.keys()
