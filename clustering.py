@@ -2,19 +2,109 @@ import random
 import math
 from collections import defaultdict
 import utilities
+import threading
+import time
+import multiprocessing
+import sys
 
-class SenseClustering(object):
+
+class SenseClusterManager(object):
+  
+  def __init__(self, queryTerms, queryVectorDict, contextWords):
+    
+    self.queryTerms = queryTerms
+    self.queryVectorDict = queryVectorDict
+    self.contextWords = contextWords
+  
+    self.finalDict = {}
+    
+  def cluster(self):
+    
+    self.nrProcessors = multiprocessing.cpu_count()
+    nrTerms = len(self.queryTerms)
+    
+    self.nrThreads  = min(self.nrProcessors, nrTerms)
+    self.threads = [None]*self.nrThreads
+    
+    
+    start = 0
+    interval = nrTerms / self.nrThreads
+    end = start + interval
+
+    print "Start clustering. Using %d threads." % self.nrThreads
+    
+    for i in range(0, self.nrThreads) :
+      if (i == (self.nrThreads-1)):
+        end = nrTerms
+
+      termSubset = self.queryTerms[start:end+1]
+      queryDictSubset = {}
+      for q in termSubset:
+        queryDictSubset[q] = self.queryVectorDict[q]
+        
+      print "start:%d, end:%d, query term subset: %s " % (start, end, termSubset)
+      
+      self.threads[i] = SenseClustering( termSubset , queryDictSubset, self.contextWords)
+
+      start = end + 1
+      end = end + interval 
+
+    for t in self.threads:
+      t.start()
+
+    for t in self.threads:
+      t.join()
+
+    print "Done clustering."
+
+    for t in self.threads:
+      
+      result = t.getResultPerQuery()
+      
+      print "result of this thread: %s\n" % (utilities.getDictString(result))
+      
+      for q in result:
+        self.finalDict[q] = result[q]
+  
+  
+  def getResult(self):
+    return self.finalDict
+  
+
+class SenseClustering(threading.Thread):
 
 
   '''
-  word instances = dictionary of the form {q_jk -> {w_i -> freq}} containing all occurences of a query word
+  word_instances_per_query = dictionary of the form q_j -> {q_jk -> {w_i -> freq}} containing all occurences of a query word
   list_context_word = list of the used context words
   '''
-  def __init__(self, word_instances, list_context_words):
-    self.word_inst = word_instances
+  def __init__(self, queries, word_instances_per_query, list_context_words, list_of_k=[2,3]):
+    
+    threading.Thread.__init__(self)
+    
+    self.queries = queries
+    self.word_instances_per_query = word_instances_per_query
+    
     self.con_words = list_context_words
-    self.nr_instances = len(word_instances)
-
+    
+    self.list_of_k = list_of_k
+    
+    self.resultPerQuery = {}
+    
+  
+  def run(self):
+    
+    print "running."
+    
+    for q in self.queries:
+      self.word_inst = self.word_instances_per_query[q]
+      self.nr_instances = len(self.word_inst)
+      
+      self.resultPerQuery[q] = self.buckshot_clustering(self.list_of_k) # 'bla'
+     
+  def getResultPerQuery(self):
+    return self.resultPerQuery
+      
   def buckshot_clustering(self, list_of_k):
     # Get the random sample for hierarchical clustering
     sample_size = int( math.sqrt(self.nr_instances))

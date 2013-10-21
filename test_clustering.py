@@ -6,6 +6,8 @@ import document_counter
 from docreader import Doc #needed for pickling call
 import utilities
 
+# werkt niet meer zo na maken threaded
+"""
 def simple_test():
   test_instances = defaultdict(lambda : defaultdict(int))
 
@@ -41,7 +43,7 @@ def simple_test():
   
   #clusterer.buckshot_clustering([2,3])
    
-
+"""
 
 def rl_test():
   (queryWords, queryDict, allContextWords) = document_counter.getQueriesAndQuerySensesDictAndCW()
@@ -49,14 +51,18 @@ def rl_test():
   #print queryWords
   #print utilities.getDictString(queryDict)
   
-  queryWord = queryWords[2]
-  allQuerySenses = queryDict[queryWord]
-  print queryWord
-  print utilities.getDictString(allQuerySenses)
+  #queryWord = queryWords[2]
+  #allQuerySenses = queryDict[queryWord]
+  #print queryWord
+  #print utilities.getDictString(allQuerySenses)
   
-  clusterer = SenseClustering(allQuerySenses, allContextWords)
+  clusterer = SenseClustering(queryWords, queryDict, allContextWords, list_of_k=[2,3])
   
-  print utilities.getDictString(clusterer.buckshot_clustering([2,3]))
+  clusterer.run()
+  
+  resultPerQuery  = clusterer.resultPerQuery
+  
+  print utilities.getDictString(resultPerQuery[queryWords[2]])
   
 if __name__ == '__main__': #if this file is the argument to python
   #simple_test()

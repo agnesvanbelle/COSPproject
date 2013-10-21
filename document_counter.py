@@ -405,7 +405,7 @@ def getQueriesAndQuerySensesDictAndCW():
 
 
 
-  dcm = DocCounter(drm, queryWords, loadDocsFromFile=True)
+  dcm = DocCounter(docReaderManager=drm, queryWords=queryWords, docFileName="alldocs.dat")
   queryDict = dcm.getQuerySensesDict()
   cw = dcm.finalContextWords
   

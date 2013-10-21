@@ -4,7 +4,7 @@ import utilities
 import docreader
 from docreader import Doc # needed for pickling call
 import document_counter
-from clustering import SenseClustering
+import clustering
 
 
 collectionDir = "Data_dummy/collection2"
@@ -37,26 +37,17 @@ def makeVectors(queryWords, docList):
   return (queryDict, docDict, contextWords)
 
 
-# TODO fix clustering
+# TODO fix buckshot clustering fails with sparse data
 def clusterQueryVectors(queryWords, allContextWords, queryVectorDict):
   
   k_values = range(1,4)
-  queriesSensesDict = {}
   
-  for queryWord in queryWords:
+  scm = clustering.SenseClusterManager(queryWords, queryVectorDict, allContextWords)
   
-    print queryWord
-    
-    allQueryVectors = queryVectorDict[queryWord]
-    
-    print utilities.getDictString(allQueryVectors)
-    
-    clusterer = SenseClustering(allQueryVectors, allContextWords)
-      
-    clusterDictQueryWord = clusterer.buckshot_clustering(k_values)
+  scm.cluster()
   
-    queriesSensesDict[queryWord] = clusterDictQueryWord
-    
+  queriesSensesDict = scm.getResult()
+  
   return queriesSensesDict
 
 
@@ -77,6 +68,6 @@ if __name__ == '__main__': #if this file is the argument to python
   
   queriesSensesDict = clusterQueryVectors(queryWords, contextWords, queryVectorDict)
   
-  print utilities.getDictString(querySensesDict)
+  print utilities.getDictString(queriesSensesDict)
   
   writeToCSV(queriesSensesDict, docVectorDict)
