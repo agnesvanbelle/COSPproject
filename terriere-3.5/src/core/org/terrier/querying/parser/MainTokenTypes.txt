@@ -1,4 +1,4 @@
-// $ANTLR 2.7.4: terrier_normallex.g -> MainTokenTypes.txt$
+// $ANTLR 2.7.7 (20060906): terrier_normallex.g -> MainTokenTypes.txt$
 Main    // output token vocab name
 NUM_FLOAT=4
 PERIOD=5

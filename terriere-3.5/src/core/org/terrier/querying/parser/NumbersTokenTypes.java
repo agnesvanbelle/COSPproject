@@ -1,4 +1,4 @@
-// $ANTLR 2.7.4: "terrier_floatlex.g" -> "TerrierFloatLexer.java"$
+// $ANTLR 2.7.7 (20060906): "terrier_floatlex.g" -> "TerrierFloatLexer.java"$
 
 package org.terrier.querying.parser;
 

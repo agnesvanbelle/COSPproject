@@ -1,4 +1,4 @@
-// $ANTLR 2.7.4: "terrier.g" -> "TerrierQueryParser.java"$
+// $ANTLR 2.7.7 (20060906): "terrier.g" -> "TerrierQueryParser.java"$
 
 package org.terrier.querying.parser;
 import antlr.TokenStreamSelector;
@@ -95,8 +95,7 @@ public TerrierQueryParser(ParserSharedInputState state) {
 		}
 		catch (RecognitionException ex) {
 			reportError(ex);
-			consume();
-			consumeUntil(_tokenSet_3);
+			recover(ex,_tokenSet_3);
 		}
 		return q;
 	}
@@ -165,8 +164,7 @@ public TerrierQueryParser(ParserSharedInputState state) {
 		}
 		catch (RecognitionException ex) {
 			reportError(ex);
-			consume();
-			consumeUntil(_tokenSet_3);
+			recover(ex,_tokenSet_3);
 		}
 		return q;
 	}
@@ -240,8 +238,7 @@ public TerrierQueryParser(ParserSharedInputState state) {
 		}
 		catch (RecognitionException ex) {
 			reportError(ex);
-			consume();
-			consumeUntil(_tokenSet_7);
+			recover(ex,_tokenSet_7);
 		}
 		return q;
 	}
@@ -328,8 +325,7 @@ public TerrierQueryParser(ParserSharedInputState state) {
 		}
 		catch (RecognitionException ex) {
 			reportError(ex);
-			consume();
-			consumeUntil(_tokenSet_10);
+			recover(ex,_tokenSet_10);
 		}
 		return q;
 	}
@@ -412,8 +408,7 @@ public TerrierQueryParser(ParserSharedInputState state) {
 		}
 		catch (RecognitionException ex) {
 			reportError(ex);
-			consume();
-			consumeUntil(_tokenSet_7);
+			recover(ex,_tokenSet_7);
 		}
 		return q;
 	}
@@ -451,8 +446,7 @@ public TerrierQueryParser(ParserSharedInputState state) {
 		}
 		catch (RecognitionException ex) {
 			reportError(ex);
-			consume();
-			consumeUntil(_tokenSet_7);
+			recover(ex,_tokenSet_7);
 		}
 		return q;
 	}
@@ -497,8 +491,7 @@ public TerrierQueryParser(ParserSharedInputState state) {
 		}
 		catch (RecognitionException ex) {
 			reportError(ex);
-			consume();
-			consumeUntil(_tokenSet_7);
+			recover(ex,_tokenSet_7);
 		}
 		return q;
 	}
@@ -558,8 +551,7 @@ public TerrierQueryParser(ParserSharedInputState state) {
 		}
 		catch (RecognitionException ex) {
 			reportError(ex);
-			consume();
-			consumeUntil(_tokenSet_7);
+			recover(ex,_tokenSet_7);
 		}
 		return q;
 	}
@@ -631,8 +623,7 @@ public TerrierQueryParser(ParserSharedInputState state) {
 		}
 		catch (RecognitionException ex) {
 			reportError(ex);
-			consume();
-			consumeUntil(_tokenSet_12);
+			recover(ex,_tokenSet_12);
 		}
 		return q;
 	}
