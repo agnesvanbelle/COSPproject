@@ -1,0 +1,33 @@
+ant clean
+ant jar
+
+setup:
+./bin/trec_setup.sh "/run/media/root/ss-ntfs/3.Documents/huiswerk_20132014/CS&P/project/data1/docs"
+
+this edits terrier.properties!  replace with own version
+
+before indexing, remove any index in var/index
+you might also want to empty var/results
+
+indexing:
+./bin/trec_terrier.sh -i
+
+retrieval:
+./bin/trec_terrier.sh -r -Dtrec.model=TF_IDF -Dtrec.topics="/run/media/root/ss-ntfs/3.Documents/huiswerk_20132014/CS&P/project/data1/original_topics.txt"
+
+evaluation:
+./bin/trec_terrier.sh -e -Dtrec.qrels="/run/media/root/ss-ntfs/3.Documents/huiswerk_20132014/CS&P/project/data1/relevance_assessments.txt" -p
+
+Terrier will look at the var/results directory, evaluate each .res file and save the output in a .eval file named the same as the corresponding .res file. 
+
+summary:
+../trec_eval/./trec_eval "/run/media/root/ss-ntfs/3.Documents/huiswerk_20132014/CS&P/project/data1/relevance_assessments.txt"  var/results/TF_IDF_0.res
+
+per query:
+../trec_eval/./trec_eval "/run/media/root/ss-ntfs/3.Documents/huiswerk_20132014/CS&P/project/data1/relevance_assessments.txt"  var/results/TF_IDF_0.res -q -n
+
+specific measure, e.g. map:
+../trec_eval/./trec_eval "/run/media/root/ss-ntfs/3.Documents/huiswerk_20132014/CS&P/project/data1/relevance_assessments.txt"  var/results/TF_IDF_0.res -m -q "map"
+
+
+
