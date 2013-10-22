@@ -61,9 +61,9 @@ def get_fake_data():
          
 def test_similarity_calculation():
   (docs, query_words, c_words, raw_queries, senses, queries) = get_fake_data_sim()
-  
+  file_name = r'bhat_coeffs.csv'
   #senses_dict, doc_vectors, queries, context_words, raw_queries
-  sim_w.write_similarities_to_CSV(senses, docs, queries, c_words, raw_queries)
+  sim_w.write_similarities_to_CSV(file_name, senses, docs, queries, c_words, raw_queries)
 
 def rl_test():
   (queryWords, queryDict, allContextWords) = document_counter.getQueriesAndQuerySensesDictAndCW()

@@ -5,8 +5,7 @@ import copy
 def write_similarities_to_CSV(file_name, senses_dict, doc_vectors, queries, context_words, raw_queries):
   # Denk dat ik hier ook nog de raw queries nodig heb om als query key te gebruiken.
   similarities = calc_similarities(senses_dict, doc_vectors, queries, context_words, raw_queries)
-  
-  file_name = r'bhat_coeffs.csv'
+    
   write_to_csv(similarities, file_name)
   
 def calc_similarities(senses_dict, doc_vectors, queries, context_words, raw_queries):
