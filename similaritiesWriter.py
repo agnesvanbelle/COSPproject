@@ -6,7 +6,7 @@ def write_similarities_to_CSV(file_name, senses_dict, doc_vectors, queries, cont
   # Denk dat ik hier ook nog de raw queries nodig heb om als query key te gebruiken.
   similarities = calc_similarities(senses_dict, doc_vectors, queries, context_words, raw_queries)
   
-  file_name = r'bhat_distances.csv'
+  file_name = r'bhat_coeffs.csv'
   write_to_csv(similarities, file_name)
   
 def calc_similarities(senses_dict, doc_vectors, queries, context_words, raw_queries):
@@ -58,20 +58,19 @@ def calc_distribution_similarities(query_term_dist, doc_term_dist, query):
     for doc, d in doc_term_dist.items():      
       # print 'similarity for', doc, q
       if q in d:        
-        distr_similarities[q][doc] = bhattacharyya_dist(d[q], query_term_dist[q])
+        distr_similarities[q][doc] = bhattacharyya_coeff(d[q], query_term_dist[q])
   
   return distr_similarities
 
-def bhattacharyya_dist(distribution_1, distribution_2):
-  bhat_dist = 0
+def bhattacharyya_coeff(distribution_1, distribution_2):
+  bhat_coeff = 0
   # print 'distribution doc: ', distribution_1
   # print 'distribution query: ', distribution_2
   for sense, value_1 in distribution_1.items():
     value_2 = distribution_2[sense]
-    bhat_dist += math.sqrt( value_1 * value_2 )
-  bhat_dist = -log(bhat_dist)
+    bhat_coeff += math.sqrt( value_1 * value_2 )  
   # print 'distance:', bhat_dist
-  return bhat_dist
+  return bhat_coeff
 
 def doc_term_distance_distribution(doc_vectors, senses_dict, query, context_words):
   
