@@ -298,7 +298,7 @@ def processedQueries(queryList):
   
   for query in queryList:
     queryNewList = preprocessor.preprocessWords(query)
-    wordList.append(queryNewList)
+    processedQueries.append(queryNewList)
   
   return processedQueries
 

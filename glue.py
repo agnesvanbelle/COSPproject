@@ -12,6 +12,7 @@ collectionDir = "Data_dummy/collection2"
 topicFile = "Data_dummy/original_topics.txt"
 docFileNames  = utilities.getFileNames(collectionDir)
 stopwordsFile = "stopwords.txt"
+similaritiesFileName = 'similarities.csv'
 
 def getDocs(loadFileName=None, saveFileName=None):
   
@@ -39,7 +40,6 @@ def makeVectors(queryWords, docList):
   return (queryDict, docDict, contextWords)
 
 
-# TODO fix buckshot clustering fails with sparse data
 def clusterQueryVectors(queryWords, allContextWords, queryVectorDict):
   
   k_values = range(1,4)
@@ -53,8 +53,7 @@ def clusterQueryVectors(queryWords, allContextWords, queryVectorDict):
   return queriesSensesDict
 
 
-  
-  
+ 
 
 if __name__ == '__main__': #if this file is the argument to python
   
@@ -66,4 +65,4 @@ if __name__ == '__main__': #if this file is the argument to python
   
   print utilities.getDictString(queriesSensesDict)
   
-  similaritiesWriter.write_similarities_to_CSV(queriesSensesDict, docVectorDict, queries, contextWords, raw_queries)
+  similaritiesWriter.write_similarities_to_CSV(similaritiesFileName, queriesSensesDict, docVectorDict, queries, contextWords, raw_queries)
