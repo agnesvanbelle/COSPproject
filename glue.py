@@ -5,6 +5,7 @@ import docreader
 from docreader import Doc # needed for pickling call
 import document_counter
 import clustering
+import similaritiesWriter
 
 
 collectionDir = "Data_dummy/collection2"
@@ -22,8 +23,9 @@ def getDocs(loadFileName=None, saveFileName=None):
 
   queries = docreader.readQueries(topicFile)
   queryWords = docreader.queriesToTermList(queries)
+  queriesList = docreader.processedQueries(queries)
    
-  return (docList, queryWords)
+  return (docList, queryWords, queriesList, queries)
 
 
 def makeVectors(queryWords, docList):
@@ -51,18 +53,12 @@ def clusterQueryVectors(queryWords, allContextWords, queryVectorDict):
   return queriesSensesDict
 
 
-
-def writeToCSV(queriesSensesDict, docVectorDict):
-  
-  # write query senses and document instances to csv file
-  
-  pass
   
   
 
 if __name__ == '__main__': #if this file is the argument to python
   
-  (docList, queryWords) = getDocs(loadFileName="alldocs.dat")
+  (docList, queryWords, queries, raw_queries) = getDocs(loadFileName="alldocs.dat")
   
   (queryVectorDict, docVectorDict, contextWords) = makeVectors(queryWords, docList)
   
@@ -70,4 +66,4 @@ if __name__ == '__main__': #if this file is the argument to python
   
   print utilities.getDictString(queriesSensesDict)
   
-  writeToCSV(queriesSensesDict, docVectorDict)
+  similaritiesWriter.write_similarities_to_CSV(queriesSensesDict, docVectorDict, queries, contextWords, raw_queries)

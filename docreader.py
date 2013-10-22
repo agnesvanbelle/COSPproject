@@ -292,6 +292,15 @@ def queriesToTermList(queryList) :
   
   return wordList
 
+def processedQueries(queryList):
+  processedQueries = []
+  preprocessor = Preprocessor()
+  
+  for query in queryList:
+    queryNewList = preprocessor.preprocessWords(query)
+    wordList.append(queryNewList)
+  
+  return processedQueries
 
 def run() :
   docFileNames  = utilities.getFileNames("Data_dummy/collection2")
