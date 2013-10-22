@@ -6,7 +6,7 @@ def write_similarities_to_CSV(file_name, senses_dict, doc_vectors, queries, cont
   # Denk dat ik hier ook nog de raw queries nodig heb om als query key te gebruiken.
   similarities = calc_similarities(senses_dict, doc_vectors, queries, context_words, raw_queries)
   
-  file_name = r'C:\Users\lyltje\Documents\UvA\Semantics and pragmatics\Final project\similarities.csv'
+  file_name = r'bhat_distances.csv'
   write_to_csv(similarities, file_name)
   
 def calc_similarities(senses_dict, doc_vectors, queries, context_words, raw_queries):
@@ -21,9 +21,6 @@ def calc_similarities(senses_dict, doc_vectors, queries, context_words, raw_quer
   
 def write_to_csv(similarities, file_name):
   f = open(file_name, 'w')
-  # Wat kan ik hier gebruiken dat ook in JAVA zit?  
-  # Klopt doc id zo????
-
   for query, terms in similarities.items():
     for term, docs in terms.items():
       for doc, sim in docs.items():
