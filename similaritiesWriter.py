@@ -20,13 +20,13 @@ def calc_similarities(senses_dict, doc_vectors, queries, context_words, raw_quer
   return similarities
   
 def write_to_csv(similarities, file_name):
-  f = open(filename, 'w')
+  f = open(file_name, 'w')
   # Wat kan ik hier gebruiken dat ook in JAVA zit?  
   # Klopt doc id zo????
   for query, terms in similarities.items():
     for term, docs in terms.items():
       for doc, sim in docs.items():
-        line = query + ', ' + term + ', ' + doc + ', ' + str(sim) + '\n'
+        line = query + ', ' + term + ', ' + str(doc) + ', ' + str(sim) + '\n'
         f.write(line)
 
   f.close()
@@ -57,22 +57,26 @@ def calc_distribution_similarities(query_term_dist, doc_term_dist, query):
   # distr_similarities term->doc->similarity
   distr_similarities = defaultdict(dict)
   for q in query:
-    for doc, dict in doc_term_dist.items():
-      if q in dict:
-        distr_similarities[q][doc] = bhattacharyya_dist(dict[q], query_term_dist[q])
+    for doc, d in doc_term_dist.items():      
+      # print 'similarity for', doc, q
+      if q in d:        
+        distr_similarities[q][doc] = bhattacharyya_dist(d[q], query_term_dist[q])
   
   return distr_similarities
 
 def bhattacharyya_dist(distribution_1, distribution_2):
   bhat_dist = 0
-  for sense, value_1 in distribution_1:
+  # print 'distribution doc: ', distribution_1
+  # print 'distribution query: ', distribution_2
+  for sense, value_1 in distribution_1.items():
     value_2 = distribution_2[sense]
     bhat_dist += math.sqrt( value_1 * value_2 )
-  
-  return -log(bhat_dist)
+  bhat_dist = -log(bhat_dist)
+  # print 'distance:', bhat_dist
+  return bhat_dist
 
 def doc_term_distance_distribution(doc_vectors, senses_dict, query, context_words):
-  print 'distribution doc'
+  
   distributions = defaultdict(dict)
   # For each document
   for doc, q_terms in doc_vectors.items():    
@@ -86,7 +90,6 @@ def doc_term_distance_distribution(doc_vectors, senses_dict, query, context_word
   return distributions
     
 def query_term_distance_distribution(senses_dict, query, context_words):
-  print 'distribution query term'
   distributions = {}
   # For each query term
   for i in range(len(query)):
@@ -100,7 +103,7 @@ def query_term_distance_distribution(senses_dict, query, context_words):
     # Calculate distribution  
     senses = senses_dict[term]    
     distributions[term] = get_distribution(senses, context_q, context_words)
-  # return result
+  # return result  
   return distributions
     
 def get_distribution(senses, item, context_words):

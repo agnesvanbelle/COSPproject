@@ -10,7 +10,7 @@ import similaritiesWriter as sim_w
 def get_fake_data_sim():
   docs = defaultdict(lambda : defaultdict(lambda : defaultdict(double)))
   query_words = ['hoi', 'kameel', 'betalen', 'bank']
-  c_words = ['caravan', 'kameel', 'hond', 'boe', ]
+  c_words = ['caravan', 'kameel', 'bank', 'boe', ]
   raw_queries = ['hoi kameel', 'betalen bank']
   queries = [['hoi','kameel'], ['betalen', 'bank']]
   
