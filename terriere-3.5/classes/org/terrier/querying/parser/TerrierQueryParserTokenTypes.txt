@@ -1,4 +1,4 @@
-// $ANTLR 2.7.4: terrier.g -> TerrierQueryParserTokenTypes.txt$
+// $ANTLR 2.7.7 (20060906): terrier.g -> TerrierQueryParserTokenTypes.txt$
 TerrierQueryParser    // output token vocab name
 NUM_FLOAT=4
 PERIOD=5

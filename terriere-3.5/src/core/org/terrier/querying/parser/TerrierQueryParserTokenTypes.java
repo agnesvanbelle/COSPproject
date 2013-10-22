@@ -1,4 +1,4 @@
-// $ANTLR 2.7.4: "terrier.g" -> "TerrierQueryParser.java"$
+// $ANTLR 2.7.7 (20060906): "terrier.g" -> "TerrierQueryParser.java"$
 
 package org.terrier.querying.parser;
 import antlr.TokenStreamSelector;
