@@ -29,6 +29,7 @@ package org.terrier.matching.taat;
 
 import java.io.IOException;
 
+import org.terrier.applications.DataHolder;
 import org.terrier.matching.AccumulatorResultSet;
 import org.terrier.matching.BaseMatching;
 import org.terrier.matching.CollectionResultSet;
@@ -82,8 +83,11 @@ public class Full extends BaseMatching
 		//DO NOT prepare the posting lists for TAAT retrieval
 		plm.prepare(false);
 				
+		
 		for(int i=0; i< plm.size(); i++)
 		{			
+			//System.out.println("term: " + plm.getTerm(i));
+			
 			assignScores(i, (AccumulatorResultSet) resultSet, plm.getPosting(i));
 		}
 
@@ -107,9 +111,13 @@ public class Full extends BaseMatching
 		int counter = 0;
 		while (postings.next() != IterablePosting.EOL)
 		{
-			System.out.println("assignScores -- doc. counter = " + counter + ", doc. id = " + postings.getId());
-			System.out.println(postings.getClass());
+			//System.out.println("assignScores -- doc. counter = " + counter + ", doc. id = " + postings.getId());
+			//System.out.println(postings.getClass());
+			
 			counter++;
+			//System.out.println("term (2): " +  plm.getTerm(i));
+			DataHolder.currentQueryTerm = plm.getTerm(i);
+			
 			score = plm.score(i);
 			docid = postings.getId();
 			//System.out.println("Docid=" + docid + " score=" + score);

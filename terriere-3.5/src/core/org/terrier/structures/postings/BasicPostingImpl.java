@@ -56,7 +56,8 @@ public class BasicPostingImpl implements WritablePosting {
 
 	/** {@inheritDoc} */
 	public int getId() {
-		System.out.println("get id");
+		//System.out.println("get id");
+		
 		return id;
 	}
 

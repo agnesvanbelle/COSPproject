@@ -9,6 +9,9 @@ this edits terrier.properties!  replace with own version
 before indexing, remove any index in var/index
 you might also want to empty var/results
 
+rm -rf var/index/*
+
+
 indexing:
 ./bin/trec_terrier.sh -i
 

@@ -54,10 +54,12 @@ class Preprocessor():
     return word
   
   # returns preprocessed word list
-  def preprocessWords(self, line):
+  def preprocessWords(self, line, fieldName=''):
     
     line = re.sub('<.*?>|(\\n)', '', line) # remove <></> tags and newline signs
-    line = re.sub('[\.,]', ' ',line) # replace commans and dots by a space
+    
+    if fieldName != 'DOCNO':
+      line = re.sub('[\.,-]', ' ',line) # replace commans and dots and - by a space
     
     
     wordList =  line.split(' ')
@@ -119,8 +121,8 @@ class DocReader(threading.Thread):
     while True:
       oldLine = line  
       
-      if line != '':
-        lineList = self.preprocessor.preprocessWords(line)     
+      if line != '':        
+        lineList = self.preprocessor.preprocessWords(line, fieldName=fieldName)     
         fieldValue.extend(lineList);
       
       if '</'+fieldName+'>' in oldLine:

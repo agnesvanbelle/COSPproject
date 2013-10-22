@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.Set;
 
+import org.terrier.applications.DataHolder;
 import org.terrier.compression.BitIn;
 import org.terrier.structures.BasicDocumentIndexEntry;
 import org.terrier.structures.BasicLexiconEntry;
@@ -41,6 +42,7 @@ import org.terrier.structures.FieldDirectInvertedOutputStream;
 import org.terrier.structures.FieldDocumentIndexEntry;
 import org.terrier.structures.FieldLexiconEntry;
 import org.terrier.structures.Index;
+import org.terrier.structures.indexing.DocIndexToCSV;
 import org.terrier.structures.indexing.DocumentIndexBuilder;
 import org.terrier.structures.indexing.DocumentPostingList;
 import org.terrier.structures.indexing.FieldDocumentPostingList;
@@ -195,6 +197,10 @@ public class BasicIndexer extends Indexer
 	
 	public void createDirectIndex(Collection[] collections)
 	{
+		DataHolder.removeFile(DocIndexToCSV.csvFileName);
+		DataHolder.removeFile(DataHolder.errorLogFileName);
+		
+		
 		currentIndex = Index.createNewIndex(path, prefix);
 		lexiconBuilder = FieldScore.FIELDS_COUNT > 0
 			? new LexiconBuilder(currentIndex, "lexicon", new FieldLexiconMap(FieldScore.FIELDS_COUNT), FieldLexiconEntry.class.getName())
@@ -374,7 +380,7 @@ public class BasicIndexer extends Indexer
 	protected void indexDocument(Map<String,String> docProperties, DocumentPostingList _termsInDocument) throws Exception 
 	{
 		
-		System.out.println(docProperties);
+		//System.out.println(docProperties);
 		
 		/* add words to lexicontree */
 		lexiconBuilder.addDocumentTerms(_termsInDocument);

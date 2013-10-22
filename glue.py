@@ -8,11 +8,11 @@ import clustering
 import similaritiesWriter
 
 
-collectionDir = "Data_dummy/collection2"
+collectionDir = "Data_dummy/collection"
 topicFile = "Data_dummy/original_topics.txt"
 docFileNames  = utilities.getFileNames(collectionDir)
 stopwordsFile = "stopwords.txt"
-similaritiesFileName = 'bhat_coeff.csv'
+similaritiesFileName = 'similarities2.csv'
 
 def getDocs(loadFileName=None, saveFileName=None):
   
@@ -30,6 +30,7 @@ def getDocs(loadFileName=None, saveFileName=None):
 
 
 def makeVectors(queryWords, docList):
+  
   
   dcm = document_counter.DocCounter(queryWords=queryWords, docList=docList)
   
@@ -57,13 +58,17 @@ def clusterQueryVectors(queryWords, allContextWords, queryVectorDict):
 
 if __name__ == '__main__': #if this file is the argument to python
   
-  (docList, queryWords, queries, raw_queries) = getDocs(loadFileName="alldocs.dat")
+  (docList, queryWords, queries, raw_queries) = getDocs(saveFileName="alldocs.dat")
+  
+  print "%d docs. " % len(docList)
   
   (queryVectorDict, docVectorDict, contextWords) = makeVectors(queryWords, docList)
   
   queriesSensesDict = clusterQueryVectors(queryWords, contextWords, queryVectorDict)
   
   #print utilities.getDictString(queriesSensesDict)
-  print queriesSensesDict.keys()
+  #print queriesSensesDict.keys()
   
-  #similaritiesWriter.write_similarities_to_CSV(similaritiesFileName, queriesSensesDict, docVectorDict, queries, contextWords, raw_queries)
+  print "%d docs in docVectorList" % len(docVectorDict.keys())
+  
+  similaritiesWriter.write_similarities_to_CSV(similaritiesFileName, queriesSensesDict, docVectorDict, queries, contextWords, raw_queries)

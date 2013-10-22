@@ -661,7 +661,7 @@ public class TaggedDocument implements Document {
 			if (t == null)
 				continue;
 			terms++;
-			System.out.print("term: "+ t);
+			//System.out.print("term: "+ t);
 			System.out.print("; fields = {");
 			Set<String> fields = d.getFields();
 			java.util.Iterator<String> f = fields.iterator();

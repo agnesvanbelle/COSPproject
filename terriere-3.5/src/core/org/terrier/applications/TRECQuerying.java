@@ -731,7 +731,12 @@ public class TRECQuerying {
 		
 		if (logger.isInfoEnabled())
 			logger.info("Processing query: " + queryId + ": '" + query + "'");
-		System.out.println("boe");
+	
+		DataHolder.currentQueryTotal = query;
+		
+		System.out.println("boe -- " + DataHolder.currentQueryTotal);
+		
+		
 		
 		matchingCount++;
 		queryingManager.runPreProcessing(srq);

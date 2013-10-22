@@ -34,7 +34,9 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.terrier.applications.DataHolder;
 import org.terrier.matching.MatchingQueryTerms;
+import org.terrier.matching.models.TF_IDF;
 import org.terrier.matching.models.WeightingModel;
 import org.terrier.structures.BitIndexPointer;
 import org.terrier.structures.CollectionStatistics;
@@ -177,7 +179,7 @@ public class PostingListManager implements Closeable
 			p.processQuery(mqt, index, this);
 		}
 		logger.info("Query " + mqt.getQueryId() + " with "+ mqt.getTerms().length +" terms has " + termPostings.size() + " posting lists");
-		System.out.println(termPostings.get(0).next());
+		//System.out.println(termPostings.get(0).next());
 		assert termPostings.size() == termStatistics.size();
 	}
 	
@@ -352,14 +354,24 @@ public class PostingListManager implements Closeable
 	 */
 	public double score(int i)
 	{
-		System.out.println("scoring");
+		//System.out.println("scoring");
 		if (i >= 0)
 			if (i < numTerms)
 			{
 				double score = 0.0d;
+			
 				for (WeightingModel w : termModels.get(i)) {
 					//System.out.println(w.getInfo());
-					System.out.println("termPostings.size(): " + termPostings.size() + ", termPostings.get(i).getId(): " + termPostings.get(i).getId());
+					//System.out.println("termPostings.size(): " + termPostings.size() + ", termPostings.get(i).getId(): " + termPostings.get(i).getId());
+					
+					DataHolder.currentDocID = termPostings.get(i).getId();
+					DataHolder.currentDocName = TF_IDF.docIDToName.get(DataHolder.currentDocID);
+					
+
+					//System.out.println("Current doc ID: " + DataHolder.currentDocID  + ", current doc Name: " + DataHolder.currentDocName);
+					//System.out.println("Current query-total: " + DataHolder.currentQueryTotal);
+					
+					//lees hier similarity in
 					score += w.score(termPostings.get(i));
 				}
 				return score;

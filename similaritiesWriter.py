@@ -23,7 +23,7 @@ def write_to_csv(similarities, file_name):
   for query, terms in similarities.items():
     for term, docs in terms.items():
       for doc, sim in docs.items():
-        line = query + ', ' + term + ', ' + str(doc) + ', ' + str(sim) + '\n'
+        line = query.lower() + ', ' + term + ', ' + str(doc) + ', ' + str(sim) + '\n'
         f.write(line)
 
   f.close()
@@ -112,6 +112,9 @@ def get_distribution(senses, item, context_words):
     total_dist+=dist
   # Normalize distances  
   for sense in senses.keys():
-    item_sense_dist[sense] /= total_dist 
+    if total_dist != 0:
+      item_sense_dist[sense] /= total_dist 
+    else :
+      item_sense_dist[sense] = 1
   # Return distribution
   return item_sense_dist

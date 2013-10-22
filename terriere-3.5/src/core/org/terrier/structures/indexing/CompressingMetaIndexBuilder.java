@@ -33,6 +33,7 @@ import java.io.DataOutput;
 import java.io.DataOutputStream;
 import java.io.Flushable;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.zip.Deflater;
@@ -203,6 +204,8 @@ public class CompressingMetaIndexBuilder extends MetaIndexBuilder implements Flu
 	@Override
 	public void writeDocumentEntry(String[] data) throws IOException
 	{
+		
+		
 		int i=0;
 		for(String value : data)
 		{
@@ -247,7 +250,9 @@ public class CompressingMetaIndexBuilder extends MetaIndexBuilder implements Flu
 			lastValues[i] = data[forwardKeys[i]];
 			
 			//TODO !!!!!!!!!!!!!!!!!!!!!!!!!!!!! hier was ik 
-			System.out.println("entryCount: " + entryCount + ", doc id:" + key);
+			System.out.println("entryCount: " + entryCount + ", doc id:" + key.toString().toLowerCase());
+			
+			DocIndexToCSV.writeToCsvFile(DocIndexToCSV.csvFileName, entryCount,  key.toString().toLowerCase());
 		}
 		entryCount++;
 		

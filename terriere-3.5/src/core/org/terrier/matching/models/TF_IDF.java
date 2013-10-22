@@ -26,6 +26,13 @@
  *   Vassilis Plachouras <vassilis{a.}dcs.gla.ac.uk>
  */
 package org.terrier.matching.models;
+
+import java.util.HashMap;
+
+import org.terrier.applications.DataHolder;
+import org.terrier.matching.WeightReader;
+import org.terrier.structures.indexing.DocIndexToCSV;
+
 /**
  * This class implements the TF_IDF weighting model.
  * tf is given by Robertson's tf and idf is given by the 
@@ -45,15 +52,20 @@ public class TF_IDF extends WeightingModel {
 	/** The constant b.*/
 	private double b = 0.75d;
 
-	/** 
-	 * A default constructor to make this model.
-	 */
+	// added
+	public static HashMap<Integer, String> docIDToName;		
+	public static  WeightReader weightReader;
+	
 	public TF_IDF() {
 		
 		
 		super();
 		
 		System.out.println("tf-idf constructor "   );
+		
+		docIDToName = DocIndexToCSV.readCsvFile(DocIndexToCSV.csvFileName);
+		weightReader = new WeightReader(DataHolder.fileNameSimilarities);
+		
 	}
 	/** 
 	 * Constructs an instance of TF_IDF
@@ -80,11 +92,24 @@ public class TF_IDF extends WeightingModel {
 	 */
 	public final double score(double tf, double docLength) {
 		
-		System.out.println("Calculating tf-idf in  score(double tf, double docLength)"   );
+		//System.out.println("Calculating tf-idf in  score(double tf, double docLength)"   );
+		double weight = weightReader.get_weight(DataHolder.currentQueryTotal, DataHolder.currentQueryTerm, DataHolder.currentDocName);
+		//System.out.println("Weight for " + DataHolder.currentQueryTotal + ", " + DataHolder.currentQueryTerm + ", " + DataHolder.currentDocName + ": " +
+							//weight);
+		
 		
 		double Robertson_tf = k_1*tf/(tf+k_1*(1-b+b*docLength/averageDocumentLength));
 		double idf = Idf.log(numberOfDocuments/documentFrequency+1);
-		return keyFrequency * Robertson_tf * idf;
+		
+		double tf_idf =  keyFrequency * Robertson_tf * idf;
+		
+		
+		
+		double new_tf_idf = tf_idf + (weight * tf_idf);
+		
+		//System.out.println("tf-idf= " + tf_idf + ", weight=" + weight + ", new_tf_idf= " + new_tf_idf );
+		
+		return new_tf_idf;
 	}
 	/**
 	 * Uses TF_IDF to compute a weight for a term in a document.
@@ -103,6 +128,8 @@ public class TF_IDF extends WeightingModel {
 		double keyFrequency) 
 	{
 		System.out.println("Calculating tf-idf in score(double tf,	double docLength,	double documentFrequency,	double termFrequency,	double keyFrequency) "  );
+		
+		
 		
 		
 		double Robertson_tf = k_1*tf/(tf+k_1*(1-b+b*docLength/averageDocumentLength));
