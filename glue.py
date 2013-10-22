@@ -12,7 +12,7 @@ collectionDir = "Data_dummy/collection2"
 topicFile = "Data_dummy/original_topics.txt"
 docFileNames  = utilities.getFileNames(collectionDir)
 stopwordsFile = "stopwords.txt"
-similaritiesFileName = 'similarities.csv'
+similaritiesFileName = 'bhat_coeff.csv'
 
 def getDocs(loadFileName=None, saveFileName=None):
   
