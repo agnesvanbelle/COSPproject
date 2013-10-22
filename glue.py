@@ -63,6 +63,7 @@ if __name__ == '__main__': #if this file is the argument to python
   
   queriesSensesDict = clusterQueryVectors(queryWords, contextWords, queryVectorDict)
   
-  print utilities.getDictString(queriesSensesDict)
+  #print utilities.getDictString(queriesSensesDict)
+  print queriesSensesDict.keys()
   
-  similaritiesWriter.write_similarities_to_CSV(similaritiesFileName, queriesSensesDict, docVectorDict, queries, contextWords, raw_queries)
+  #similaritiesWriter.write_similarities_to_CSV(similaritiesFileName, queriesSensesDict, docVectorDict, queries, contextWords, raw_queries)

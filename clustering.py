@@ -61,7 +61,7 @@ class SenseClusterManager(object):
       
       result = t.getResultPerQuery()
       
-      print "result of this thread: %s\n" % (utilities.getDictString(result))
+      #print "result of this thread: %s\n" % (utilities.getDictString(result))
       
       for q in result:
         self.finalDict[q] = result[q]
@@ -94,7 +94,7 @@ class SenseClustering(threading.Thread):
   
   def run(self):
     
-    print "running."
+    #print "running."
     
     for q in self.queries:
       self.word_inst = self.word_instances_per_query[q]
@@ -127,12 +127,12 @@ class SenseClustering(threading.Thread):
 
     # Do k-means clustering for each k using the aquired seeds
     clusters = {}
-    print "list_of_k: %s" % list_of_k
+    #print "list_of_k: %s" % list_of_k
     for k in list_of_k:
       if k in seeds:
         clusters[k] = self.k_means_defined_startpoints(seeds[k])
       else:
-        print "Removing k=%d b/c of initialization fail" % k
+        #print "Removing k=%d b/c of initialization fail" % k
         list_of_k.remove(k) # sorry you no play
         
     best_v = float("inf")
@@ -144,10 +144,10 @@ class SenseClustering(threading.Thread):
       if validation_score<best_v:
         best_v = validation_score
         best_k = k
-      print validation_score, k
-      print
+     # print validation_score, k
+      #print
 
-    print 'best k value: %d' %best_k
+    #print 'best k value: %d' %best_k
     #print clusters[best_k][0]
     #print utilities.getDictString(clusters[best_k][1])
     return clusters[best_k][1]
