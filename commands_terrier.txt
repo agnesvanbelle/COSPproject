@@ -17,6 +17,9 @@ rm -rf var/index/*
 indexing:
 ./bin/trec_terrier.sh -i
 
+copy similarities.csv into terrier folder:
+cp ../../similarities.csv ./similarities.csv
+
 retrieval:
 ./bin/trec_terrier.sh -r -Dtrec.model=TF_IDF -Dtrec.topics="/run/media/root/ss-ntfs/3.Documents/huiswerk_20132014/CS&P/project/data1/original_topics.txt"
 

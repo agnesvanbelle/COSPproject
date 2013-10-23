@@ -15,7 +15,7 @@ querying.allowed.controls=scope,qe,qemodel,start,end,site,scope
 #the documents, ignoring DOCHDR
 TrecDocTags.doctag=DOC
 TrecDocTags.idtag=DOCNO
-TrecDocTags.skip=DOCHDR,HEADLINE,DATE,SECTION,LENGTH,BYLINE,EDITION
+TrecDocTags.skip=DOCHDR,HEADLINE,DATE,SECTION,LENGTH,BYLINE,EDITION,FLAG,GRAPHIC
 #set to true if the tags can be of various case
 TrecDocTags.casesensitive=false
 
@@ -26,13 +26,13 @@ TrecQueryTags.process=TOP,NUM,EN-title
 TrecQueryTags.skip=EN-desc,EN-narr
 
 #stop-words file
-stopwords.filename=/run/media/root/ss-ntfs/3.Documents/huiswerk_20132014/CS&P/project/git/stopwords.txt
+stopwords.filename=stopwords.txt
 
 #the processing stages a term goes through
 termpipelines=Stopwords,PorterStemmer
 
 # topics
-trec.topics=/run/media/root/ss-ntfs/3.Documents/huiswerk_20132014/CS&P/project/data1/original_topics.txt
+#trec.topics=/run/media/root/ss-ntfs/3.Documents/huiswerk_20132014/CS&P/project/data1/original_topics.txt
 
 # weighting model
 #trec.model=TF_IDF

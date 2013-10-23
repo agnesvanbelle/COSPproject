@@ -109,7 +109,9 @@ public class TF_IDF extends WeightingModel {
 		
 		//System.out.println("tf-idf= " + tf_idf + ", weight=" + weight + ", new_tf_idf= " + new_tf_idf );
 		
-		return new_tf_idf;
+		//return new_tf_idf;
+		
+		return tf_idf;
 	}
 	/**
 	 * Uses TF_IDF to compute a weight for a term in a document.
