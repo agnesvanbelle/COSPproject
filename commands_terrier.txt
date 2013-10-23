@@ -6,6 +6,8 @@ setup:
 
 this edits terrier.properties!  replace with own version
 
+cp etc/terrier.properties.mine etc/terrier.properties
+
 before indexing, remove any index in var/index
 you might also want to empty var/results
 

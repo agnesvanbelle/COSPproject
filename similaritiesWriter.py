@@ -1,6 +1,5 @@
 from collections import defaultdict
 import math
-from numpy import log
 import copy
 def write_similarities_to_CSV(file_name, senses_dict, doc_vectors, queries, context_words, raw_queries):
   # Denk dat ik hier ook nog de raw queries nodig heb om als query key te gebruiken.
