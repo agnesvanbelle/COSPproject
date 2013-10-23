@@ -59,7 +59,7 @@ class Preprocessor():
     line = re.sub('<.*?>|(\\n)', '', line) # remove <></> tags and newline signs
     
     if fieldName != 'DOCNO':
-      line = re.sub('[\.,-]', ' ',line) # replace commans and dots and - by a space
+      line = re.sub('[\.\',-]', ' ',line) # replace commans and dots and - by a space
     
     
     wordList =  line.split(' ')
