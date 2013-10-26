@@ -29,10 +29,10 @@ def getDocs(loadFileName=None, saveFileName=None):
   return (docList, queryWords, queriesList, queries)
 
 
-def makeVectors(queryWords, docList):
+def makeVectors(queryWords, docList, vpt):
 
 
-  dcm = document_counter.DocCounter(queryWords=queryWords, docList=docList, maxContextWords=150)
+  dcm = document_counter.DocCounter(queryWords=queryWords, docList=docList, maxContextWords=150, variancePerTerm=vpt)
 
   queryDict = dcm.getQuerySensesDict()
   docDict =  dcm.getDocInstancesDict()
@@ -102,14 +102,14 @@ def printAvgLen(docList):
   print "avgLen: %2.2f" % avgLen
 
   
-def automatic_similarities():
+def automatic_similarities(variancePerTerm=False):
   similaritiesFileName = 'similarities2.csv'
 
   (docList, queryWords, queries, raw_queries) = getDocs(saveFileName="alldocs.dat")
   
   print "%d docs. " % len(docList)
   
-  (queryVectorDict, docVectorDict, contextWords) = makeVectors(queryWords, docList)
+  (queryVectorDict, docVectorDict, contextWords) = makeVectors(queryWords, docList, variancePerTerm)
   
   writeStatsOccurrences(queryVectorDict)  
 
@@ -147,5 +147,31 @@ def supervised_similarities():
  
 
 if __name__ == '__main__': #if this file is the argument to python
-  
-  supervised_similarities()
+  parser = argparse.ArgumentParser(description='get the data for WSD', version='%(prog)s 1.0')
+    parser.add_argument('automatic', type=str, help='get the data for WSD automatic or supervised. values: auto - supervised')
+    parser.add_argument('variancePerTerm', type=str, help='Calculate variance per queryterm or not. values: true - false')
+    
+    args = parser.parse_args()
+    kwargs = vars(args)
+    auto = kwargs['automatic']
+    variance = kwargs['variancePerTerm']
+    
+    
+    
+    if auto == 'auto':
+      if variance == 'true':
+        automatic_similarities(True)
+      elif variance == 'false':
+        automatic_similarities(False)
+      else:
+        print 'invalid input for the parameter for using variance per term or not'
+    elif auto == 'supervised'
+      supervised_similarities()
+    else:
+      print 'invalid input for automatic vs supervised parameter'
+    
+    
+    
+    
+    
+    

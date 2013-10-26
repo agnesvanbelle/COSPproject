@@ -93,7 +93,7 @@ class DocCounterWorker(threading.Thread):
 #
 class DocCounter(object):
 
-  def __init__(self,  queryWords, maxContextWords = 50, nrDocsToReadLimit=sys.maxint, docReaderManager=None, docFileName=None, docList=None):
+  def __init__(self,  queryWords, variancePerTerm = False, maxContextWords = 50, nrDocsToReadLimit=sys.maxint, docReaderManager=None, docFileName=None, docList=None):
     self.nrProcessors = multiprocessing.cpu_count()
     self.threads = [None]*self.nrProcessors
     self.docReaderManager = docReaderManager
