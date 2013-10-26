@@ -373,19 +373,21 @@ class DocCounter(object):
   #@see self.dimReduction_seperate
   def getContextWordsLargestVariance_seperate(self, contextWordTotalDict):
     heap = []
-    cwList = []
+    cwList = defaultdict(list)
 
+    nr_context_words = len(contextWordTotalDict)
     nrQueryWords = len(self.queryWords)
     smallestVariance = sys.maxint
-
-    for contextWord, queryDict in contextWordTotalDict.iteritems():
-      l = []
-      for queryWord in self.queryWords:
+    
+    for queryWord in self.queryWords:
+      
+      for contextWord, queryDict in contextWordTotalDict.iteritems():
+        l = []      
         l.append(queryDict[queryWord])
 
       total = sum(l)
-      avg = total / float( nrQueryWords)
-      variance = utilities.variance(avg, l, nrQueryWords)
+      avg = total / float(nr_context_words)
+      variance = utilities.variance(avg, l, nr_context_words)
       #print variance
 
       if len(heap) < self.maxContextWords:
@@ -457,7 +459,7 @@ class DocCounter(object):
       else :
         if variance > smallestVariance:
           heapq.heappushpop(heap, (variance, contextWord))
-          smallestVariance = variance
+          smallestVariance = heap[0][0]
 
     while heap:
       cw = heapq.heappop(heap) # order: small to large
