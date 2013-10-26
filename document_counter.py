@@ -444,7 +444,7 @@ class DocCounter(object):
               heapq.heappushpop(heap, (variance, contextWord))
               smallestVariance = heap[0][0]
   
-      print "len(heap): %d" % len(heap)
+      #print "len(heap): %d" % len(heap)
       
       while heap:
         cw = heapq.heappop(heap) # order: small to large

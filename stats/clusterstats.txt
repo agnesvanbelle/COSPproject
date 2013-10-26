@@ -1,94 +1,110 @@
-set
-	7
-cancer
-	3
-speci
-	2
-scotland
-	7
-hard
-	4
-site
-	6
-sex
-	4
-consum
-	2
 nestl
 	1
+solar
+	1
+cancer
+	1
+speci
+	1
+activ
+	2
+hard
+	2
+site
+	2
+boycott
+	1
+product
+	2
+set
+	2
 anti
-	4
+	2
 heritag
 	1
 energi
 	3
 sport
-	4
+	2
 film
-	4
+	2
+afghanistan
+	1
+consum
+	2
 fee
 	2
 europ
-	3
-super
-	3
-activ
-	3
+	2
+eclips
+	1
+scotland
+	1
 paint
 	2
 attack
-	7
+	2
 treatment
 	2
 strike
 	2
 price
-	5
-franc
-	6
-product
-	5
-celebr
-	5
-brand
 	2
+franc
+	1
+tighten
+	1
+celebr
+	2
+dope
+	1
 oil
-	4
+	2
 wast
 	2
 centenari
-	1
+	0
 visa
 	1
-student
-	5
-endang
-	2
-world
-	10
-educ
-	4
-eclips
+brand
 	1
-model
+student
+	2
+endang
+	1
+world
+	2
+educ
+	3
+super
+	2
+industri
 	2
 requir
-	4
-dope
+	2
+opium
 	1
 unemploy
-	3
+	1
+sex
+	1
 dog
 	2
 drug
-	5
+	3
 crise
+	1
+atom
+	1
+eta
+	0
+taliban
+	0
+model
 	2
-industri
-	6
 global
 	1
 italian
 	1
 Average:
-	3.39130434783
+	1.53703703704

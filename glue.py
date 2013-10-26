@@ -14,6 +14,85 @@ topicFile = "../data1/original_topics.txt"
 docFileNames  = utilities.getFileNames(collectionDir)
 stopwordsFile = "stopwords.txt"
 
+statsDir = 'stats'
+
+def writeClusters(queriesSensesDict):
+  try:
+    f = open(statsDir + "/clusterresults.txt", "w")
+    try:
+      for  q in queriesSensesDict:
+        f.write( '\n'+ q + '\n')
+        f.write (str(len( queriesSensesDict[q])) + '\n')
+        for s in queriesSensesDict[q]:
+          f.write( str(queriesSensesDict[q][s])  + '\n\n')
+     
+    finally:
+      f.close()
+  except IOError:
+    pass
+
+def writeStatsOccurrences(queryVectorDict) :
+  try:
+    f = open(statsDir + "/occstats.txt", "w")
+    try:
+      totalOcc = 0
+      for query in queryVectorDict:
+        nrOcc = len(queryVectorDict[query])
+        totalOcc += nrOcc
+
+        f.write(query + '\n') # Write a string to a file
+        f.write('\t' + str(nrOcc) + '\n')
+
+      f.write('Average:\n') # Write a string to a file
+      f.write('\t' + str(totalOcc/float(len(queryVectorDict))) + '\n')
+    finally:
+      f.close()
+  except IOError:
+    pass
+
+def writeStatsClustering(queriesSensesDict) :
+  try:
+    f = open(statsDir + "/clusterstats.txt", "w")
+    try:
+      nrTotal = 0
+      for query in queriesSensesDict:
+        nrSenses  = len(queriesSensesDict[query])
+        nrTotal += nrSenses
+
+        f.write(query + '\n') # Write a string to a file
+        f.write('\t' + str(nrSenses) + '\n')
+
+      f.write('Average:\n') # Write a string to a file
+      f.write('\t' + str(nrTotal/float(len(queriesSensesDict))) + '\n')
+    finally:
+      f.close()
+  except IOError:
+    pass
+
+def writeDocStats(docList, queryWords):
+  total=0.0
+  for d in docList:
+    total += len(d.mainContent)
+  avgLen = total / float(len(docList))
+
+  try:
+    f = open(statsDir + "/avgdoclen.txt", "w")
+    try:
+      f.write('nr docs: ' + str(len(docList)) + '\n')
+      f.write('avgdoclen: ' + str(avgLen) + '\n')
+      
+      f.write('nr queries: ' + str(len(queryWords)) + '\n')
+
+      for q in queryWords:        
+        f.write( str(q) + '\n')
+    finally:
+      f.close()
+  except IOError:
+    pass
+  print "avgLen: %2.2f" % avgLen
+
+
+
 def getDocs(loadFileName=None, saveFileName=None):
 
   drm = docreader.DocReaderManager(docFileNames , stopwordsFile)
@@ -37,8 +116,6 @@ def makeVectors(queryWords, docList, vpt):
   queryDict = dcm.getQuerySensesDict()
   docDict =  dcm.getDocInstancesDict()
   contextWords = dcm.finalContextWords
-
-  print " len(queryDict): %s" % len(queryDict)
   
   return (queryDict, docDict, contextWords)
 
@@ -55,95 +132,24 @@ def clusterQueryVectors(queryWords, allContextWords, queryVectorDict, variancePe
 
   return queriesSensesDict
 
-
-def writeStatsOccurrences(queryVectorDict) :
-  try:
-    f = open("occstats.txt", "w")
-    try:
-      totalOcc = 0
-      for query in queryVectorDict:
-        nrOcc = len(queryVectorDict[query])
-        totalOcc += nrOcc
-
-        f.write(query + '\n') # Write a string to a file
-        f.write('\t' + str(nrOcc) + '\n')
-
-      f.write('Average:\n') # Write a string to a file
-      f.write('\t' + str(totalOcc/float(len(queryVectorDict))) + '\n')
-    finally:
-      f.close()
-  except IOError:
-    pass
-
-def writeStatsClustering(queriesSensesDict) :
-  try:
-    f = open("clusterstats.txt", "w")
-    try:
-      nrTotal = 0
-      for query in queriesSensesDict:
-        nrSenses  = len(queriesSensesDict[query])
-        nrTotal += nrSenses
-
-        f.write(query + '\n') # Write a string to a file
-        f.write('\t' + str(nrSenses) + '\n')
-
-      f.write('Average:\n') # Write a string to a file
-      f.write('\t' + str(nrTotal/float(len(queriesSensesDict))) + '\n')
-    finally:
-      f.close()
-  except IOError:
-    pass
-
-def printAvgLen(docList):
-  total=0.0
-  for d in docList:
-    total += len(d.mainContent)
-
-  avgLen = total / float(len(docList))
-
-  print "avgLen: %2.2f" % avgLen
-
-
 def automatic_similarities(variancePerTerm=False):
   similaritiesFileName = 'similarities.csv'
 
-  (docList, queryWords, queries, raw_queries) = getDocs(loadFileName="alldocs.dat")
+  (docList, queryWords, queries, raw_queries) = getDocs(loadFileName="alldocs2.dat")
 
-  print "%d docs. " % len(docList)
+  writeDocStats(docList, queryWords)
 
   (queryVectorDict, docVectorDict, contextWords) = makeVectors(queryWords, docList, variancePerTerm)
 
-  print "len queryVectorDict: %d" % len(queryVectorDict)
-  
-  #print "contextWords: %s" % contextWords
-  #print "queryWords: %s" % queryWords
   
   writeStatsOccurrences(queryVectorDict)
 
-
-  for q in queryVectorDict:
-    for k in queryVectorDict[q]:
-      for w in queryVectorDict[q][k]:
-        print "%s:%s - %2.2f" % (q,w,queryVectorDict[q][k][w])
       
   queriesSensesDict = clusterQueryVectors(queryWords, contextWords, queryVectorDict, variancePerTerm)
 
-  """
-  print "queriesSensesDict: " 
-  for  q in queriesSensesDict:
-    print q
-    print len( queriesSensesDict[q])
-    for s in queriesSensesDict[q]:
-      print queriesSensesDict[q][s]
-      print
-  """
   
   writeStatsClustering(queriesSensesDict)
-
-  #print utilities.getDictString(queriesSensesDict)
-  #print queriesSensesDict.keys()
-
-  print "%d docs in docVectorList" % len(docVectorDict.keys())
+  writeClusters(queriesSensesDict)
 
   similaritiesWriter.write_similarities_to_CSV(similaritiesFileName, queriesSensesDict, docVectorDict, queries, contextWords, raw_queries, variancePerTerm)
  
@@ -152,28 +158,20 @@ def supervised_similarities(variancePerTerm=False):
 
   similaritiesFileName = 'similarities.csv'
 
-  (docList, queryWords, queries, raw_queries) = getDocs(loadFileName="alldocs.dat")
+  (docList, queryWords, queries, raw_queries) = getDocs(loadFileName="alldocs2.dat")
 
+  writeDocStats(docList, queryWords)
+  
   (queryVectorDict, docVectorDict, contextWords) = makeVectors(queryWords, docList, variancePerTerm)
 
-  print "%d docs in docVectorDict" % len(docVectorDict.keys())
 
   writeStatsOccurrences(queryVectorDict)
 
   (queriesSensesDict, contextWords) = supervised.get_senses(queryWords)
 
-  
-  """
-  for  q in queriesSensesDict:
-    print q
-    print len( queriesSensesDict[q])
-    
-    for s in queriesSensesDict[q]:
-       print queriesSensesDict[q][s]
-    #  print
-  """
-  writeStatsClustering(queriesSensesDict)
 
+  writeStatsClustering(queriesSensesDict)
+  writeClusters(queriesSensesDict)
 
   similaritiesWriter.write_similarities_to_CSV(similaritiesFileName, queriesSensesDict, docVectorDict, queries, contextWords, raw_queries, True)
 
@@ -188,7 +186,7 @@ if __name__ == '__main__': #if this file is the argument to python
   auto = kwargs['automatic']
   variance = kwargs['variancePerTerm']
 
-
+  utilities.makeDir(statsDir)
 
   if auto == 'auto':
     if variance == 'true':

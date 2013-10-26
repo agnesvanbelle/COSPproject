@@ -54,3 +54,8 @@ def entropy(l, sumL=None):
       entrSum += (prob * math.log(prob,2))
 
   return (-1) * entrSum
+
+
+def makeDir(directory):
+  if not os.path.exists(directory):
+    os.makedirs(directory)

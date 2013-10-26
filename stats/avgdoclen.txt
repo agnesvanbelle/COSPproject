@@ -1,90 +1,57 @@
+nr docs: 2052
+avgdoclen: 331.788011696
+nr queries: 54
 nestl
-	1
 student
-	1
 cancer
-	1
 speci
-	1
-scotland
-	2
-hard
-	1
-site
-	1
-boycott
-	0
-celebr
-	1
-set
-	2
-heritag
-	1
-energi
-	1
-sport
-	1
-film
-	1
-afghanistan
-	0
-fee
-	1
-europ
-	1
-super
-	1
 activ
-	1
-tighten
-	0
-paint
-	1
-attack
-	2
-treatment
-	1
-strike
-	1
+hard
+site
+boycott
+celebr
+set
 dope
-	1
-franc
-	2
-product
-	2
-consum
-	1
-price
-	2
-oil
-	2
-wast
-	1
-centenari
-	1
-visa
-	1
-brand
-	1
-solar
-	0
-endang
-	1
-world
-	2
+heritag
+energi
+sport
+film
+afghanistan
 educ
-	1
-eclips
-	1
-requir
-	2
-opium
-	0
-sex
-	2
+europ
+super
+scotland
+tighten
+paint
+attack
+treatment
+strike
+price
+franc
+product
+consum
+brand
+oil
+wast
+centenari
+visa
 taliban
-	0
+solar
+endang
+world
+sex
+eclips
 model
-	1
-Average:
-	1.09090909091
+requir
+opium
+fee
+unemploy
+dog
+drug
+crise
+atom
+eta
+anti
+industri
+global
+italian

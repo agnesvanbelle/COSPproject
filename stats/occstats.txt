@@ -1,0 +1,104 @@
+set
+	16
+solar
+	1
+cancer
+	6
+speci
+	5
+scotland
+	3
+hard
+	14
+site
+	13
+boycott
+	2
+celebr
+	10
+nestl
+	2
+anti
+	10
+heritag
+	6
+energi
+	9
+consum
+	11
+film
+	20
+afghanistan
+	3
+sport
+	11
+europ
+	7
+super
+	8
+activ
+	14
+paint
+	7
+attack
+	11
+treatment
+	8
+strike
+	9
+product
+	15
+brand
+	4
+franc
+	4
+tighten
+	6
+oil
+	27
+endang
+	4
+price
+	17
+wast
+	9
+visa
+	2
+student
+	26
+atom
+	4
+world
+	19
+educ
+	19
+eclips
+	1
+model
+	7
+requir
+	14
+dope
+	2
+opium
+	1
+fee
+	14
+unemploy
+	6
+sex
+	6
+dog
+	10
+drug
+	20
+crise
+	2
+industri
+	16
+global
+	6
+italian
+	5
+Average:
+	9.25490196078

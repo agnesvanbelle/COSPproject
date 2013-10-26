@@ -22,7 +22,7 @@ class SenseClusterManager(object):
     
   def cluster(self):
     
-    self.nrProcessors = 1 #multiprocessing.cpu_count()
+    self.nrProcessors = multiprocessing.cpu_count()
     nrTerms = len(self.queryTerms)
     
     self.nrThreads  = min(self.nrProcessors, nrTerms)
@@ -111,11 +111,11 @@ class SenseClustering(threading.Thread):
       else:
         self.con_words = self.list_context_words
         
-        print "self.con_words: %s" % self.con_words
+        #print "self.con_words: %s" % self.con_words
         
       if self.nr_instances > max(self.list_of_k):
-        print "self.list_of_k: %s" % self.list_of_k
-        print "self.nr_instances: %s" % self.nr_instances
+        #print "self.list_of_k: %s" % self.list_of_k
+        #print "self.nr_instances: %s" % self.nr_instances
         self.resultPerQuery[q] = self.buckshot_clustering(self.list_of_k) # 'bla'
       else:
         single_cluster = defaultdict(list)
@@ -132,7 +132,7 @@ class SenseClustering(threading.Thread):
     clusters_init = {}
     occurrences = self.word_inst.keys()
     
-    print "occurrences: %s" % occurrences
+    #print "occurrences: %s" % occurrences
     
     for i in range(sample_size):
       index = random.randrange(len(occurrences))
@@ -149,9 +149,9 @@ class SenseClustering(threading.Thread):
     for k in list_of_k:
       if k in seeds:
         clusters[k] = self.k_means_defined_startpoints(seeds[k])
-      else:
+      #else:
         #print "Removing k=%d b/c of initialization fail" % k
-        list_of_k.remove(k) # sorry you no play
+        #list_of_k.remove(k) # sorry you no play
         
     best_v = float("inf")
     best_k = -1
@@ -169,8 +169,15 @@ class SenseClustering(threading.Thread):
     #print 'best k value: %d' %best_k
     #print clusters[best_k][0]
     #print utilities.getDictString(clusters[best_k][1])
-    return clusters[best_k][1]
-
+    
+    if best_k != -1:
+      return clusters[best_k][1]
+    else:
+      single_cluster = defaultdict(list)
+      for inst in self.word_inst:
+        single_cluster[0].append(inst)
+      return self.get_centroids(single_cluster)
+   
   def calc_validation_index(self, assignment, centroids):
     # calculate sum of differences between centroids and cluster members
     total_wc_distance = 0
@@ -200,7 +207,7 @@ class SenseClustering(threading.Thread):
   # TODO add something so it still works in there's only 1 vector
   def hierarchical_clustering_for_seeds(self, clusters, list_of_k):
     
-    print "clusters: %s" % clusters
+    #print "clusters: %s" % clusters
     
     distances = self.calc_all_eucl_distances(clusters)
     current_nr_clusters = len(clusters)
@@ -215,21 +222,21 @@ class SenseClustering(threading.Thread):
       current_dist = float("inf")
       cluster_keys = clusters.keys()
       
-      print "len(clusters): %d" % len(clusters)
+      #print "len(clusters): %d" % len(clusters)
       
       for i in range(len(clusters)):
         for j in range(i+1, len(clusters)):
           
-          print "i+1, len(clusters): %d" % j
+          #print "i+1, len(clusters): %d" % j
           
           # Calculate cluster distance
           c1 = cluster_keys[i]
           c2 = cluster_keys[j]
           dist = self.calc_cluster_distance(clusters[c1]+clusters[c2], distances)
           
-          print "dist: %2.2f" % dist
-          print "c1: %s " % c1
-          print "c2: %s " % c2
+          #print "dist: %2.2f" % dist
+          #print "c1: %s " % c1
+          #print "c2: %s " % c2
           
           if dist < current_dist:
             current_dist = dist
