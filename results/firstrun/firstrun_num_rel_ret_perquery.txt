@@ -23,4 +23,3 @@ num_rel_ret           	c322	11
 num_rel_ret           	c323	15
 num_rel_ret           	c324	20
 num_rel_ret           	c325	59
-num_rel_ret           	all	670

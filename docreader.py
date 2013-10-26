@@ -22,46 +22,46 @@ class Doc(object):
 
 # preprocesses words
 class Preprocessor():
-  
+
   def __init__(self, stopWordsFileName="stopwords.txt"):
     self.stopWordsFileName = stopWordsFileName
     self.stopwords = self.readStopWords()
     self.stemmer = PorterStemmer() # works on words
-     
+
   def readStopWords(self):
     f = open(self.stopWordsFileName)
     lines = [line.strip() for line in f]
     f.close()
     return lines
-    
+
   # returns a preprocessed word
   def preprocessWord(self, word):
-    
+
     word = re.sub('[^A-Za-z0-9_-]+', '', word)
-    
+
     if (word == ''): # word was only punctuation
       return ''
-    
+
     word = word.lower()
-    
-    if  word in self.stopwords:  
+
+    if  word in self.stopwords:
       return ''
-      
-    word = self.stemmer.stem(word)          
-    
-    
-    
+
+    word = self.stemmer.stem(word)
+
+
+
     return word
-  
+
   # returns preprocessed word list
   def preprocessWords(self, line, fieldName=''):
-    
+
     line = re.sub('<.*?>|(\\n)', '', line) # remove <></> tags and newline signs
-    
+
     if fieldName != 'DOCNO':
       line = re.sub('[\.\',-]', ' ',line) # replace commans and dots and - by a space
-    
-    
+
+
     wordList =  line.split(' ')
     newWordList = []
     for w in wordList:
@@ -78,31 +78,31 @@ class DocReader(threading.Thread):
 
   startMain = '<TEXT>'
   endMain = '</TEXT>'
-  
+
   startID = '<DOCNO>'
   endID = '</DOCNO>'
-  
+
   fieldList = ['HEADLINE', 'BYLINE',  'SOURCE', 'FLAG', 'SECTION']
 
   docCounter = 0
   fileCounter = 0
-    
+
   def __init__(self, listOfFileNames, preprocessor):
 
     threading.Thread.__init__(self)
-    
+
     self.listOfFileNames = list(reversed(listOfFileNames))
     self.currentOpenFile = None
     self.currentOpenFileName = None
-    
-    
-    self.preprocessor = preprocessor 
-    
+
+
+    self.preprocessor = preprocessor
+
     self.docList = []
-    
+
   def run(self):
     d =  'meaningless init value'
-    
+
     while d != None :
       d =  self.getNextDocFromFiles()
       if d != None:
@@ -110,24 +110,24 @@ class DocReader(threading.Thread):
         #print d.mainContentnt
         #print d.ID
         self.docList.append(d)
-      
-    
-  
+
+
+
   # this is for processing the SOURCE, HEADLINE etc. fields
   # when we know we are at the start of a document
   def processField(self, docFile, line, fieldName):
     fieldValue = []
 
     while True:
-      oldLine = line  
-      
-      if line != '':        
-        lineList = self.preprocessor.preprocessWords(line, fieldName=fieldName)     
+      oldLine = line
+
+      if line != '':
+        lineList = self.preprocessor.preprocessWords(line, fieldName=fieldName)
         fieldValue.extend(lineList);
-      
+
       if '</'+fieldName+'>' in oldLine:
         return fieldValue
-        
+
       line = docFile.readline();
 
   # give the current file, process a document:
@@ -137,39 +137,39 @@ class DocReader(threading.Thread):
     fieldValues = defaultdict(list)
     contentWords =  []
     docID = None
-    
+
     main = False
-    
+
     while True:
       line = docFile.readline()
 
       if line.startswith(DocReader.endDoc):
         return Doc(docID, contentWords, fieldValues)
         break;
-      
+
       if line.startswith(DocReader.startID):
         docID = self.processField(docFile, line, 'DOCNO')[0]
-        
+
       for fieldName in DocReader.fieldList:
         if line.startswith('<'+fieldName+'>'):
           fieldValue = self.processField(docFile, line, fieldName)
           fieldValues[fieldName] = fieldValue
-      
+
       if line.startswith(DocReader.startMain):
         main = True
       elif line.startswith(DocReader.endMain):
         main = False
-        
+
       if main:
-        lineList = self.preprocessor.preprocessWords(line) 
+        lineList = self.preprocessor.preprocessWords(line)
         contentWords.extend(lineList);
 
-  
-  # get next document from the files, as a 
+
+  # get next document from the files, as a
   # Doc object
   # returns None if the last file is empty
   def getNextDocFromFiles(self) :
-    
+
     if self.currentOpenFile == None:
       if self.listOfFileNames == []:
         return None
@@ -194,29 +194,29 @@ class DocReader(threading.Thread):
 
 
 class DocReaderManager(object):
-  
-  
+
+
   def __init__(self, fileNameList, preprocessorStopwordsFile="stopwords.txt"):
     self.fileNameList = fileNameList
     self.preprocessorStopwordsFile = preprocessorStopwordsFile
-    
+
     self.docList = []
-    
-    
+
+
   def parseDocs(self):
     self.nrProcessors = multiprocessing.cpu_count()
     nrFiles = len(self.fileNameList)
-    
+
     self.nrThreads  = min(self.nrProcessors, nrFiles)
     self.threads = [None]*self.nrThreads
-    
-    
+
+
     start = 0
     interval = nrFiles / self.nrThreads
     end = start + interval
 
     print "Start reading. Using %d threads." % self.nrThreads
-    
+
     for i in range(0, self.nrThreads) :
       if (i == (self.nrThreads-1)):
         end = nrFiles
@@ -224,11 +224,11 @@ class DocReaderManager(object):
       filesSubset = self.fileNameList[start:end+1]
 
       print "start:%d, end:%d, filesSubset: %s " % (start, end, filesSubset)
-      
+
       self.threads[i] = DocReader( filesSubset , Preprocessor(self.preprocessorStopwordsFile))
 
       start = end + 1
-      end = end + interval 
+      end = end + interval
 
     for t in self.threads:
       t.start()
@@ -239,23 +239,23 @@ class DocReaderManager(object):
     print "Done reading."
 
     for t in self.threads:
-      
+
       self.docList.extend(t.docList)
-      
+
 
   def getDocs(self, fileName=None):
     if fileName != None:
       self.loadDocs(fileName)
-  
+
     else:
       self.parseDocs()
-    
+
     return self.docList
-      
+
   def saveDocs(self, fileName="alldocs.dat"):
     if self.docList == []:
       self.parseDocs()
-      
+
     print "Saving docs."
     file1 = open( fileName, "wb" )
     pickle.dump( self.docList, file1, -1  )
@@ -263,14 +263,15 @@ class DocReaderManager(object):
 
   def loadDocs(self, fileName):
     print "Loading saved docs."
-    f1 = open( fileName, "rb" ) 
+    f1 = open( fileName, "rb" )
     docList = pickle.load( f1 )
     self.docList = docList
     f1.close()
-    
-    
+
+
 
 def readQueries(topicFileName) :
+  preprocessor = Preprocessor()
   topicFile = open(topicFileName)
   queryList = []
   while True:
@@ -280,48 +281,50 @@ def readQueries(topicFileName) :
     if line.startswith('<EN-title>'):
       query= re.search( "<EN-title>(.*?)</EN-title>" , line ).group(1)
       query = query.strip()
+      #queryNewList = preprocessor.preprocessWords(query)
+      #query = " ".join(queryNewList)
       queryList.append(query)
-  
+
   return queryList
-  
+
 def queriesToTermList(queryList) :
   wordList = []
   preprocessor = Preprocessor()
-  
+
   for query in queryList:
     queryNewList = preprocessor.preprocessWords(query)
     wordList.extend(queryNewList)
-  
+
   return wordList
 
 def processedQueries(queryList):
   processedQueries = []
   preprocessor = Preprocessor()
-  
+
   for query in queryList:
     queryNewList = preprocessor.preprocessWords(query)
     processedQueries.append(queryNewList)
-  
+
   return processedQueries
 
 def run() :
-  docFileNames  = utilities.getFileNames("Data_dummy/collection2")
+  docFileNames  = utilities.getFileNames("data1/docs")
 
 
   dr = DocReaderManager(docFileNames, "stopwords.txt")
 
   #169 478 docs
-  
+
   print docFileNames
-  
+
   dr.getDocs()
   dr.saveDocs("alldocs2.dat")
-  
-  queries = readQueries("Data_dummy/original_topics.txt")
+
+  queries = readQueries("data1/original_topics.txt")
   queryWords = queriesToTermList(queries)
-  
+
   print queryWords
-  
-  
+
+
 if __name__ == '__main__': #if this file is the argument to python
   run()
