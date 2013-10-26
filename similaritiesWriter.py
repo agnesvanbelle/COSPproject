@@ -80,7 +80,7 @@ def doc_term_distance_distribution(doc_vectors, senses_dict, query, context_word
   for doc, q_terms in doc_vectors.items():    
     #For each query term
     for q in query:
-      if senses_dict[q] == 'DEFAULT':
+      if not q in senses_dict:
         distributions[doc][q] = {}
         distributions[doc][q][1] = 1.0        
       else:
@@ -101,7 +101,7 @@ def query_term_distance_distribution(senses_dict, query, context_words, seperate
   # For each query term
   for i in range(len(query)):
     term = query[i]
-    if senses_dict[term] == 'DEFAULT':
+    if not term in senses_dict: 
       distributions[term] = {}
       distributions[term][1] = 1.0        
     else:

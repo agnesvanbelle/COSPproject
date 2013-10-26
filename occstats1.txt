@@ -1,0 +1,94 @@
+set
+	7
+cancer
+	3
+speci
+	2
+scotland
+	7
+hard
+	4
+site
+	6
+sex
+	4
+consum
+	2
+nestl
+	1
+anti
+	4
+heritag
+	1
+energi
+	3
+sport
+	4
+film
+	4
+fee
+	2
+europ
+	3
+super
+	3
+activ
+	3
+paint
+	2
+attack
+	7
+treatment
+	2
+strike
+	2
+price
+	5
+franc
+	6
+product
+	5
+celebr
+	5
+brand
+	2
+oil
+	4
+wast
+	2
+centenari
+	1
+visa
+	1
+student
+	5
+endang
+	2
+world
+	10
+educ
+	4
+eclips
+	1
+model
+	2
+requir
+	4
+dope
+	1
+unemploy
+	3
+dog
+	2
+drug
+	5
+crise
+	2
+industri
+	6
+global
+	1
+italian
+	1
+Average:
+	3.39130434783

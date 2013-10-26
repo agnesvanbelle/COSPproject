@@ -8,7 +8,7 @@ def get_senses(raw_queries):
   senses = defaultdict(lambda : defaultdict( lambda : defaultdict(float)))
   totals = defaultdict(lambda : defaultdict(float))
   context_words = defaultdict(Set)
-  default = 'DEFAULT'
+  #default = 'DEFAULT'
   processor = docreader.Preprocessor()
   sense_id = 0
   
@@ -25,13 +25,14 @@ def get_senses(raw_queries):
         # print word, processed_q_word
         # get synsets if possible
         syns = wn.synsets(word)
-        if len(syns)<2:
-          senses[processed_q_word] = default
+        #if len(syns)<2:
+          #senses[processed_q_word] = default
+         
           # if len(syns) == 0:
             # print 'not in wordnet:', word
           # else:
             # print 'only one sense:', word
-        else:
+        if len(syns) >= 2:
           # For each element in the synsets (= 1 sense)
           for syn in syns:
             wordList = []
@@ -52,10 +53,12 @@ def get_senses(raw_queries):
   
   # Normalize
   for q_word, w_senses in senses.items():
-    if w_senses != default:
-      context_words[q_word] = list(context_words[q_word])
-      for s_id, context in w_senses.items():
-        for c_word in context.keys():
-          context[c_word] = context[c_word] / totals[q_word][s_id]
+    #if w_senses != default:
+    context_words[q_word] = list(context_words[q_word])
+    for s_id, context in w_senses.items():
+      for c_word in context.keys():
+        context[c_word] = context[c_word] / totals[q_word][s_id]
+  
+  
   
   return (senses, context_words)

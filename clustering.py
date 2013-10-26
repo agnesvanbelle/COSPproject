@@ -10,17 +10,19 @@ import sys
 
 class SenseClusterManager(object):
   
-  def __init__(self, queryTerms, queryVectorDict, contextWords):
+  def __init__(self, queryTerms, queryVectorDict, contextWords, k_values, variancePerTerm):
     
     self.queryTerms = queryTerms
     self.queryVectorDict = queryVectorDict
     self.contextWords = contextWords
-  
+    self.variancePerTerm = variancePerTerm
+    self.k_values = k_values
+    
     self.finalDict = {}
     
   def cluster(self):
     
-    self.nrProcessors = multiprocessing.cpu_count()
+    self.nrProcessors = 1 #multiprocessing.cpu_count()
     nrTerms = len(self.queryTerms)
     
     self.nrThreads  = min(self.nrProcessors, nrTerms)
@@ -44,7 +46,8 @@ class SenseClusterManager(object):
         
       print "start:%d, end:%d, query term subset: %s " % (start, end, termSubset)
       
-      self.threads[i] = SenseClustering( termSubset , queryDictSubset, self.contextWords)
+    
+      self.threads[i] = SenseClustering( termSubset , queryDictSubset, self.k_values, self.contextWords, self.variancePerTerm)
 
       start = end + 1
       end = end + interval 
@@ -78,16 +81,18 @@ class SenseClustering(threading.Thread):
   word_instances_per_query = dictionary of the form q_j -> {q_jk -> {w_i -> freq}} containing all occurences of a query word
   list_context_word = list of the used context words
   '''
-  def __init__(self, queries, word_instances_per_query, list_context_words, list_of_k=[2,3]):
+  def __init__(self, queries, word_instances_per_query, list_of_k,  list_context_words, variancePerTerm):
     
     threading.Thread.__init__(self)
     
     self.queries = queries
     self.word_instances_per_query = word_instances_per_query
     
-    self.con_words = list_context_words
+    self.list_context_words = list_context_words
     
     self.list_of_k = list_of_k
+    
+    self.variancePerTerm = variancePerTerm
     
     self.resultPerQuery = {}
     
@@ -100,7 +105,17 @@ class SenseClustering(threading.Thread):
       self.word_inst = self.word_instances_per_query[q]
       self.nr_instances = len(self.word_inst)
       
+      if self.variancePerTerm:
+        self.con_words = self.list_context_words[q]
+        #print self.con_words
+      else:
+        self.con_words = self.list_context_words
+        
+        print "self.con_words: %s" % self.con_words
+        
       if self.nr_instances > max(self.list_of_k):
+        print "self.list_of_k: %s" % self.list_of_k
+        print "self.nr_instances: %s" % self.nr_instances
         self.resultPerQuery[q] = self.buckshot_clustering(self.list_of_k) # 'bla'
       else:
         single_cluster = defaultdict(list)
@@ -116,6 +131,9 @@ class SenseClustering(threading.Thread):
     sample_size = int( math.sqrt(self.nr_instances))+1
     clusters_init = {}
     occurrences = self.word_inst.keys()
+    
+    print "occurrences: %s" % occurrences
+    
     for i in range(sample_size):
       index = random.randrange(len(occurrences))
       clusters_init[i] = [occurrences[index]]
@@ -139,11 +157,12 @@ class SenseClustering(threading.Thread):
     best_k = -1
     # Find best cluster
     for k in list_of_k:
-      (assignment, centroids) = clusters[k]
-      validation_score = self.calc_validation_index(assignment, centroids)
-      if validation_score<best_v:
-        best_v = validation_score
-        best_k = k
+      if k in clusters:
+        (assignment, centroids) = clusters[k]
+        validation_score = self.calc_validation_index(assignment, centroids)
+        if validation_score<best_v:
+          best_v = validation_score
+          best_k = k
      # print validation_score, k
       #print
 
@@ -180,6 +199,9 @@ class SenseClustering(threading.Thread):
 
   # TODO add something so it still works in there's only 1 vector
   def hierarchical_clustering_for_seeds(self, clusters, list_of_k):
+    
+    print "clusters: %s" % clusters
+    
     distances = self.calc_all_eucl_distances(clusters)
     current_nr_clusters = len(clusters)
     min_nr_clusters = min(list_of_k)
@@ -192,16 +214,28 @@ class SenseClustering(threading.Thread):
       current_pair = None
       current_dist = float("inf")
       cluster_keys = clusters.keys()
+      
+      print "len(clusters): %d" % len(clusters)
+      
       for i in range(len(clusters)):
         for j in range(i+1, len(clusters)):
+          
+          print "i+1, len(clusters): %d" % j
+          
           # Calculate cluster distance
           c1 = cluster_keys[i]
           c2 = cluster_keys[j]
           dist = self.calc_cluster_distance(clusters[c1]+clusters[c2], distances)
-          if dist<current_dist:
+          
+          print "dist: %2.2f" % dist
+          print "c1: %s " % c1
+          print "c2: %s " % c2
+          
+          if dist < current_dist:
             current_dist = dist
             current_pair = (c1,c2)
 
+      
       # cluster two closest clusters
       clusters[cluster_id] = clusters[current_pair[0]]+clusters[current_pair[1]]
       del clusters[current_pair[0]]

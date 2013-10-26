@@ -295,7 +295,7 @@ def queriesToTermList(queryList) :
     queryNewList = preprocessor.preprocessWords(query)
     wordList.extend(queryNewList)
 
-  return wordList
+  return  list(set(wordList))
 
 def processedQueries(queryList):
   processedQueries = []
