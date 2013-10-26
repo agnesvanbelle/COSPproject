@@ -1,0 +1,111 @@
+[610, 56, 252, 143, 427, 439, 188, 189, 331, 94, 337, 268, 137, 220, 386, 486, 29, 341, 248, 38, 71, 43, 95, 268, 478, 216, 362, 46, 223, 566, 263, 628, 420, 29, 90, 140, 975, 108, 861, 528, 171, 240, 559, 13, 216, 300, 538, 42, 63, 7, 640, 136, 143]
+
+
+set
+	610
+solar
+	56
+cancer
+	252
+speci
+	143
+activ
+	427
+hard
+	439
+wast
+	188
+sex
+	189
+consum
+	331
+boycott
+	94
+oil
+	337
+anti
+	268
+heritag
+	137
+energi
+	220
+sport
+	386
+film
+	486
+afghanistan
+	29
+fee
+	341
+europ
+	248
+nestl
+	38
+eclips
+	71
+scotland
+	43
+tighten
+	95
+paint
+	268
+attack
+	478
+treatment
+	216
+strike
+	362
+dope
+	46
+franc
+	223
+product
+	566
+celebr
+	263
+price
+	628
+site
+	420
+centenari
+	29
+visa
+	90
+brand
+	140
+student
+	975
+endang
+	108
+world
+	861
+educ
+	528
+super
+	171
+model
+	240
+requir
+	559
+opium
+	13
+unemploy
+	216
+dog
+	300
+drug
+	538
+crise
+	42
+atom
+	63
+eta
+	7
+industri
+	640
+global
+	136
+italian
+	143
+Average:
+	2.69811320755

@@ -23,4 +23,3 @@ num_ret               	c322	1000
 num_ret               	c323	1000
 num_ret               	c324	1000
 num_ret               	c325	1000
-num_ret               	all	24120
