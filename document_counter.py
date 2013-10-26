@@ -345,8 +345,66 @@ class DocCounter(object):
         newDocDict[docKey] = docDict[docKey]
 
     return (newDict, newTotalDict, newDocDict)
+  
+  # same as dimReduction but contextwords with highest varaiance
+  # are determined per query term
+  def dimReduction_seperate(self, contextWordDict, contextWordTotalDict, docRepresentationsDict):
+    cwList_all = self.getContextWordsLargestVariance( contextWordTotalDict)
+
+    newContextWordDict  = defaultdict(lambda : defaultdict(lambda : defaultdict(int)))
+    newDocRepresentationsDict = defaultdict(lambda : defaultdict(lambda : defaultdict(int)))
+    
+    for term, cwList in cwList_all:
+      for k in cwList:
+
+        newContextWordDict[k][term] = copy.deepcopy(contextWordDict[k][term])
+
+        # perhaps this will be slow
+        for doc in docRepresentationsDict:
+          for queryWord in docRepresentationsDict[doc]:
+            newDocRepresentationsDict[doc][queryWord][k] = copy.deepcopy(docRepresentationsDict[doc][queryWord][k])
+
+    del contextWordDict
+    del docRepresentationsDict
+
+    return (newContextWordDict, newDocRepresentationsDict, cwList)
 
 
+  #@see self.dimReduction_seperate
+  def getContextWordsLargestVariance_seperate(self, contextWordTotalDict):
+    heap = []
+    cwList = []
+
+    nrQueryWords = len(self.queryWords)
+    smallestVariance = sys.maxint
+
+    for contextWord, queryDict in contextWordTotalDict.iteritems():
+      l = []
+      for queryWord in self.queryWords:
+        l.append(queryDict[queryWord])
+
+      total = sum(l)
+      avg = total / float( nrQueryWords)
+      variance = utilities.variance(avg, l, nrQueryWords)
+      #print variance
+
+      if len(heap) < self.maxContextWords:
+        heapq.heappush(heap, (variance, contextWord))
+        if variance < smallestVariance :
+          smallestVariance = variance
+
+      else :
+        if variance > smallestVariance:
+          heapq.heappushpop(heap, (variance, contextWord))
+          smallestVariance = variance
+
+    while heap:
+      cw = heapq.heappop(heap) # order: small to large
+      cwList.append( cw[1] )
+
+    return cwList
+  
+  
   # dimensionality reduction of the nr. of context words
   # keep the self.maxContextWords ones with highes variance
   #

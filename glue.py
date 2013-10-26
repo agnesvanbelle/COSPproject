@@ -6,6 +6,7 @@ from docreader import Doc # needed for pickling call
 import document_counter
 import clustering
 import similaritiesWriter
+import supervised
 
 
 collectionDir = "Data_dummy/collection"
@@ -52,12 +53,11 @@ def clusterQueryVectors(queryWords, allContextWords, queryVectorDict):
   queriesSensesDict = scm.getResult()
   
   return queriesSensesDict
-
-
- 
-
-if __name__ == '__main__': #if this file is the argument to python
   
+  
+def automatic_similarities():
+  similaritiesFileName = 'similarities2.csv'
+
   (docList, queryWords, queries, raw_queries) = getDocs(saveFileName="alldocs.dat")
   
   print "%d docs. " % len(docList)
@@ -71,4 +71,29 @@ if __name__ == '__main__': #if this file is the argument to python
   
   print "%d docs in docVectorList" % len(docVectorDict.keys())
   
-  similaritiesWriter.write_similarities_to_CSV(similaritiesFileName, queriesSensesDict, docVectorDict, queries, contextWords, raw_queries)
+  similaritiesWriter.write_similarities_to_CSV(similaritiesFileName, queriesSensesDict, docVectorDict, queries, contextWords, raw_queries, False)
+
+  
+def supervised_similarities():
+  
+  similaritiesFileName = 'similarities_supervised.csv'
+  
+  (docList, queryWords, queries, raw_queries) = getDocs(saveFileName="alldocs.dat")
+  
+  print "%d docs. " % len(docList)
+  
+  (queryVectorDict, docVectorDict, contextWords) = makeVectors(queryWords, docList)
+  
+  (queriesSensesDict, contextWords) = supervised.get_senses(queryWords)
+  
+  #print utilities.getDictString(queriesSensesDict)
+  #print queriesSensesDict.keys()
+  
+  print "%d docs in docVectorList" % len(docVectorDict.keys())
+  
+  similaritiesWriter.write_similarities_to_CSV(similaritiesFileName, queriesSensesDict, docVectorDict, queries, contextWords, raw_queries, True)
+ 
+
+if __name__ == '__main__': #if this file is the argument to python
+  
+  supervised_similarities()
