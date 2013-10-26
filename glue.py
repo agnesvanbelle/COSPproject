@@ -6,13 +6,13 @@ from docreader import Doc # needed for pickling call
 import document_counter
 import clustering
 import similaritiesWriter
+import supervised
 
 
 collectionDir = "."
 topicFile = "../data1/original_topics.txt"
 docFileNames  = utilities.getFileNames(collectionDir)
 stopwordsFile = "stopwords.txt"
-similaritiesFileName = 'similarities.csv'
 
 def getDocs(loadFileName=None, saveFileName=None):
 
@@ -52,7 +52,7 @@ def clusterQueryVectors(queryWords, allContextWords, queryVectorDict):
   queriesSensesDict = scm.getResult()
 
   return queriesSensesDict
-
+  
 
 def writeStatsOccurrences(queryVectorDict) :
   try:
@@ -92,13 +92,7 @@ def writeStatsClustering(queriesSensesDict) :
   except IOError:
     pass
 
-if __name__ == '__main__': #if this file is the argument to python
-
-  (docList, queryWords, queries, raw_queries) = getDocs(loadFileName="alldocs.dat")
-
-  print "%d docs. " % len(docList)
-  print "queries: %s " % queries
-  
+def printAvgLen(docList):
   total=0.0
   for d in docList:
     total += len(d.mainContent)
@@ -106,22 +100,52 @@ if __name__ == '__main__': #if this file is the argument to python
   avgLen = total / float(len(docList))
   
   print "avgLen: %2.2f" % avgLen
+
   
-  """
+def automatic_similarities():
+  similaritiesFileName = 'similarities2.csv'
+
+  (docList, queryWords, queries, raw_queries) = getDocs(saveFileName="alldocs.dat")
+  
+  print "%d docs. " % len(docList)
+  
+  (queryVectorDict, docVectorDict, contextWords) = makeVectors(queryWords, docList)
+  
+  writeStatsOccurrences(queryVectorDict)  
+
+  queriesSensesDict = clusterQueryVectors(queryWords, contextWords, queryVectorDict)
+  
+  writeStatsClustering(queriesSensesDict)
+  
+  #print utilities.getDictString(queriesSensesDict)
+  #print queriesSensesDict.keys()
+  
+  print "%d docs in docVectorList" % len(docVectorDict.keys())
+  
+  similaritiesWriter.write_similarities_to_CSV(similaritiesFileName, queriesSensesDict, docVectorDict, queries, contextWords, raw_queries, False)
+
+
+def supervised_similarities():
+  
+  similaritiesFileName = 'similarities_supervised.csv'   
+
   (queryVectorDict, docVectorDict, contextWords) = makeVectors(queryWords, docList)
 
-  writeStatsOccurrences(queryVectorDict)
+  print "%d docs in docVectorDict" % len(docVectorDict.keys())
+
+  writeStatsOccurrences(queryVectorDict)  
+
+  (queriesSensesDict, contextWords) = supervised.get_senses(queryWords)
   
-  print "clustering query vectors"
-  queriesSensesDict = clusterQueryVectors(queryWords, contextWords, queryVectorDict)
-
-  writeStatsClustering(queriesSensesDict)
-
-  #print utilities.getDictString(queriesSensesDict)
   print queriesSensesDict.keys()
+ 
+ 
+  writeStatsClustering(queriesSensesDict)
+  
+  
+  similaritiesWriter.write_similarities_to_CSV(similaritiesFileName, queriesSensesDict, docVectorDict, queries, contextWords, raw_queries, True)
+ 
 
-  print "%d docs in docVectorList" % len(docVectorDict.keys())
-
-  print "writing similarities to csv"
-  similaritiesWriter.write_similarities_to_CSV(similaritiesFileName, queriesSensesDict, docVectorDict, queries, contextWords, raw_queries)
-  """
+if __name__ == '__main__': #if this file is the argument to python
+  
+  supervised_similarities()

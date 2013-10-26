@@ -6,9 +6,11 @@ import document_counter
 from docreader import Doc #needed for pickling call
 import utilities
 import similaritiesWriter as sim_w
+import supervised
+import similaritiesWriter
 
 def get_fake_data_sim():
-  docs = defaultdict(lambda : defaultdict(lambda : defaultdict(double)))
+  docs = defaultdict(lambda : defaultdict(lambda : defaultdict(float)))
   query_words = ['hoi', 'kameel', 'betalen', 'bank']
   c_words = ['caravan', 'kameel', 'bank', 'boe', ]
   raw_queries = ['hoi kameel', 'betalen bank']
@@ -58,7 +60,28 @@ def get_fake_data():
       occ_id+=1     
   
   return(query_words, test_instances, c_words)
-         
+
+def test_supervised():
+  raw_queries = ['the man that walked on the moon blaat!', 'a beautiful tree on an island']
+  queries = [['man', 'walk', 'moon', 'blaat'],['beauti', 'tree', 'island']]
+  file_name = 'test_supervised.csv'
+          
+  (senses, c_words) = supervised.get_senses(raw_queries)
+  
+  docs = defaultdict(lambda : defaultdict(lambda : defaultdict(float)))
+  for i in range(3):
+    for qu in queries:
+      for qw in qu:
+        for cw in c_words[qw]:
+          r = random.random()/2.0
+          docs[i][qw][cw] = r
+          print i, qw, cw, r, '-',
+        print ' '
+    print ' '
+  
+  sim_w.write_similarities_to_CSV(file_name, senses, docs, queries, c_words, raw_queries, True)
+  
+  
 def test_similarity_calculation():
   (docs, query_words, c_words, raw_queries, senses, queries) = get_fake_data_sim()
   file_name = r'bhat_coeffs.csv'
@@ -88,4 +111,5 @@ def rl_test():
 if __name__ == '__main__': #if this file is the argument to python
   #simple_test()
   # rl_test()
-  test_similarity_calculation()
+  # test_similarity_calculation()
+  test_supervised()

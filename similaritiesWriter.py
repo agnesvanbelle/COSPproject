@@ -1,18 +1,21 @@
 from collections import defaultdict
 import math
-import copy
-def write_similarities_to_CSV(file_name, senses_dict, doc_vectors, queries, context_words, raw_queries):
+import copy 
+
+def write_similarities_to_CSV(file_name, senses_dict, doc_vectors, queries, context_words, raw_queries, seperate_context):
   # Denk dat ik hier ook nog de raw queries nodig heb om als query key te gebruiken.
-  similarities = calc_similarities(senses_dict, doc_vectors, queries, context_words, raw_queries)
+  similarities = calc_similarities(senses_dict, doc_vectors, queries, context_words, raw_queries, seperate_context)
     
   write_to_csv(similarities, file_name)
   
-def calc_similarities(senses_dict, doc_vectors, queries, context_words, raw_queries):
+  
+  
+def calc_similarities(senses_dict, doc_vectors, queries, context_words, raw_queries, seperate_context):
   similarities = defaultdict(dict)
   for i in range(len(queries)):
     query = queries[i]
     raw_query = raw_queries[i]
-    sim = get_similarity(doc_vectors, senses_dict, query, context_words)
+    sim = get_similarity(doc_vectors, senses_dict, query, context_words, seperate_context)
     similarities[raw_query] = sim
   
   return similarities
@@ -27,11 +30,11 @@ def write_to_csv(similarities, file_name):
 
   f.close()
  
-def get_similarity(doc_vectors, senses_dict, query, context_words):
+def get_similarity(doc_vectors, senses_dict, query, context_words, seperate_context):
     # Get distribution over senses for the query terms
-    query_term_dist = query_term_distance_distribution(senses_dict, query, context_words)
+    query_term_dist = query_term_distance_distribution(senses_dict, query, context_words, seperate_context)
     # Get distribution over senses for the documents for each of the query terms
-    doc_term_dist = doc_term_distance_distribution(doc_vectors, senses_dict, query, context_words)
+    doc_term_dist = doc_term_distance_distribution(doc_vectors, senses_dict, query, context_words, seperate_context)
     # Get similarities between distributions
     return calc_distribution_similarities(query_term_dist, doc_term_dist, query)
 
@@ -70,34 +73,52 @@ def bhattacharyya_coeff(distribution_1, distribution_2):
   # print 'distance:', bhat_dist
   return bhat_coeff
 
-def doc_term_distance_distribution(doc_vectors, senses_dict, query, context_words):
+def doc_term_distance_distribution(doc_vectors, senses_dict, query, context_words, seperate_context):
   
   distributions = defaultdict(dict)
   # For each document
   for doc, q_terms in doc_vectors.items():    
     #For each query term
     for q in query:
-      # If term in document
-      if q in q_terms:
-        #Determine distribution over senses
-        distributions[doc][q] = get_distribution(senses_dict[q], doc_vectors[doc][q], context_words)      
+      if senses_dict[q] == 'DEFAULT':
+        distributions[doc][q] = {}
+        distributions[doc][q][1] = 1.0        
+      else:
+        # If term in document
+        if q in q_terms:
+          q_context_words = []
+          if seperate_context:
+            q_context_words = copy.deepcopy(context_words[q])
+          else:
+            q_context_words = copy.deepcopy(context_words)
+          #Determine distribution over senses
+          distributions[doc][q] = get_distribution(senses_dict[q], doc_vectors[doc][q], q_context_words)      
   # Return result
   return distributions
     
-def query_term_distance_distribution(senses_dict, query, context_words):
+def query_term_distance_distribution(senses_dict, query, context_words, seperate_context):
   distributions = {}
   # For each query term
   for i in range(len(query)):
     term = query[i]
-    # initialize context for query term
-    context_list_q = copy.deepcopy(query)
-    del context_list_q[i]
-    context_q = defaultdict(int)
-    for w in context_list_q:
-      context_q[w] += 1
-    # Calculate distribution  
-    senses = senses_dict[term]    
-    distributions[term] = get_distribution(senses, context_q, context_words)
+    if senses_dict[term] == 'DEFAULT':
+      distributions[term] = {}
+      distributions[term][1] = 1.0        
+    else:
+      # initialize context for query term
+      context_list_q = copy.deepcopy(query)
+      del context_list_q[i]
+      context_q = defaultdict(int)
+      for w in context_list_q:
+        context_q[w] += 1
+      # Calculate distribution  
+      senses = senses_dict[term]    
+      q_context_words = []
+      if seperate_context:
+        q_context_words = copy.deepcopy(context_words[term])
+      else:
+        q_context_words = copy.deepcopy(context_words)
+      distributions[term] = get_distribution(senses, context_q, context_words)
   # return result  
   return distributions
     
