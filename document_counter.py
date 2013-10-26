@@ -240,7 +240,7 @@ class DocCounter(object):
     print "Done counting."
 
     for t in self.threads:
-      (contextWordsToQueries, docRepresentationsDict, totalOccurrencePerQueryWord) = t.get_representations()
+      (f, docRepresentationsDict, totalOccurrencePerQueryWord) = t.get_representations()
       print "contextWordsToQueries len: %d" % len(contextWordsToQueries)
       print "docrepr. len: %s" % len(docRepresentationsDict)
       print "totalOccurrencePerQueryWord len: %s " % len(totalOccurrencePerQueryWord)
@@ -371,38 +371,39 @@ class DocCounter(object):
 
 
   #@see self.dimReduction_seperate
-  def getContextWordsLargestVariance_seperate(self, contextWordTotalDict):
+  def getContextWordsLargestVariance_seperate(self, all_occurrences): #contextWordTotalDict
     heap = []
     cwList = defaultdict(list)
 
-    nr_context_words = len(contextWordTotalDict)
-    nrQueryWords = len(self.queryWords)
+    
     smallestVariance = sys.maxint
     
     for queryWord in self.queryWords:
       
-      for contextWord, queryDict in contextWordTotalDict.iteritems():
+      for contextWord in all_occurrences:
         l = []      
-        l.append(queryDict[queryWord])
+        nr_occ = len(all_occurrences[contextWord][queryWord])
+        for occ, freq in all_occurrences[contextWord][queryWord]
+          l.append(freq)
 
-      total = sum(l)
-      avg = total / float(nr_context_words)
-      variance = utilities.variance(avg, l, nr_context_words)
-      #print variance
+        total = sum(l)
+        avg = total / float(nr_occ)
+        variance = utilities.variance(avg, l, nr_occ)
+        #print variance
 
-      if len(heap) < self.maxContextWords:
-        heapq.heappush(heap, (variance, contextWord))
-        if variance < smallestVariance :
-          smallestVariance = variance
+        if len(heap) < self.maxContextWords:
+          heapq.heappush(heap, (variance, contextWord))
+          if variance < smallestVariance :
+            smallestVariance = variance
 
-      else :
-        if variance > smallestVariance:
-          heapq.heappushpop(heap, (variance, contextWord))
-          smallestVariance = variance
+        else :
+          if variance > smallestVariance:
+            heapq.heappushpop(heap, (variance, contextWord))
+            smallestVariance = heap[0][0]
 
-    while heap:
-      cw = heapq.heappop(heap) # order: small to large
-      cwList.append( cw[1] )
+      while heap:
+        cw = heapq.heappop(heap) # order: small to large
+        cwList[queryWord].append( cw[1] )
 
     return cwList
   
