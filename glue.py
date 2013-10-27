@@ -9,8 +9,8 @@ import similaritiesWriter
 import supervised
 import argparse
 
-collectionDir = "Data_dummy/collection"
-topicFile = "../data1/original_topics.txt"
+collectionDir = "data1/docs"
+topicFile = "data1/original_topics.txt"
 docFileNames  = utilities.getFileNames(collectionDir)
 stopwordsFile = "stopwords.txt"
 
@@ -25,7 +25,7 @@ def writeClusters(queriesSensesDict):
         f.write (str(len( queriesSensesDict[q])) + '\n')
         for s in queriesSensesDict[q]:
           f.write( str(queriesSensesDict[q][s])  + '\n\n')
-     
+
     finally:
       f.close()
   except IOError:
@@ -80,10 +80,10 @@ def writeDocStats(docList, queryWords):
     try:
       f.write('nr docs: ' + str(len(docList)) + '\n')
       f.write('avgdoclen: ' + str(avgLen) + '\n')
-      
+
       f.write('nr queries: ' + str(len(queryWords)) + '\n')
 
-      for q in queryWords:        
+      for q in queryWords:
         f.write( str(q) + '\n')
     finally:
       f.close()
@@ -116,13 +116,13 @@ def makeVectors(queryWords, docList, vpt):
   queryDict = dcm.getQuerySensesDict()
   docDict =  dcm.getDocInstancesDict()
   contextWords = dcm.finalContextWords
-  
+
   return (queryDict, docDict, contextWords)
 
 
 def clusterQueryVectors(queryWords, allContextWords, queryVectorDict, variancePerTerm):
 
-  k_values = range(2,7)
+  k_values = range(4,10)
 
   scm = clustering.SenseClusterManager(queryWords, queryVectorDict, allContextWords, k_values, variancePerTerm)
 
@@ -141,18 +141,19 @@ def automatic_similarities(variancePerTerm=False):
 
   (queryVectorDict, docVectorDict, contextWords) = makeVectors(queryWords, docList, variancePerTerm)
 
-  
+
   writeStatsOccurrences(queryVectorDict)
 
-      
+
   queriesSensesDict = clusterQueryVectors(queryWords, contextWords, queryVectorDict, variancePerTerm)
 
-  
+
   writeStatsClustering(queriesSensesDict)
   writeClusters(queriesSensesDict)
 
+  print "writing similarities to file"
   similaritiesWriter.write_similarities_to_CSV(similaritiesFileName, queriesSensesDict, docVectorDict, queries, contextWords, raw_queries, variancePerTerm)
- 
+
 
 def supervised_similarities(variancePerTerm=False):
 
@@ -161,7 +162,7 @@ def supervised_similarities(variancePerTerm=False):
   (docList, queryWords, queries, raw_queries) = getDocs(loadFileName="alldocs2.dat")
 
   writeDocStats(docList, queryWords)
-  
+
   (queryVectorDict, docVectorDict, contextWords) = makeVectors(queryWords, docList, variancePerTerm)
 
 
@@ -173,6 +174,7 @@ def supervised_similarities(variancePerTerm=False):
   writeStatsClustering(queriesSensesDict)
   writeClusters(queriesSensesDict)
 
+  print "writing similarities to file"
   similaritiesWriter.write_similarities_to_CSV(similaritiesFileName, queriesSensesDict, docVectorDict, queries, contextWords, raw_queries, True)
 
 

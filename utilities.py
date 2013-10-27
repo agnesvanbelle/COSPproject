@@ -1,6 +1,10 @@
 import os
 import math
 from collections import defaultdict
+from scipy.stats import ttest_ind, ttest_1samp
+import math
+import numpy
+import operator
 
 # recursively get all filenames in (sub)directories
 def getFileNames(directory) :
@@ -59,3 +63,19 @@ def entropy(l, sumL=None):
 def makeDir(directory):
   if not os.path.exists(directory):
     os.makedirs(directory)
+
+
+
+# note
+# ttest_ind underestimates p for unequal variances
+def independentTtest(list1, list2, equalVar = False) :
+  (t, p) =  ttest_ind(list1, list2, equalVar)
+  return (t,p)
+
+
+#paired t-test
+def pairedTtest(list1, list2) :
+  (ar1, ar2) = (numpy.array(list1), numpy.array(list2))
+  (t, p) =  ttest_1samp(ar1-ar2, 0)
+  return (t,p)
+
