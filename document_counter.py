@@ -51,11 +51,8 @@ class DocCounterWorker(threading.Thread):
         # If a query word is encountered
         if word in self.q_words:
           # Process context
-          #print "word: %s" % word
           d_context = content[max(0, i-self.d_window):i] + content[i+1: min(i+1+self.d_window, d_length+1)]
-          #print "d_context: %s" % d_context
           q_context = content[max(0, i-self.q_window):i] + content[i+1: min(i+1+self.q_window, d_length+1)]
-          #print "q_context: %s " % q_context
           for w in d_context:
             self.doc_representations[doc_id][word][w] +=1 # d_i -> q_j -> w_l -> count
 
@@ -147,14 +144,6 @@ class DocCounter(object):
 
     (contextWordDict, contextWordTotalDict, docRepresentationsDict) = self.mergeContextWordDicts(contextWordDictsList, totalContextWordCountsDictList, docRepresentationsDictList)
 
-    """
-    print contextWordDict['year']['world']
-    print contextWordDict['year']['franc']
-
-    print contextWordTotalDict['year']['world']
-    print contextWordTotalDict['year']['franc']
-    """
-
     # cwList =  list of context words remained
     if not self.variancePerTerm:
       (contextWordDict, docRepresentationsDict, cwList) =  self.dimReduction(contextWordDict, contextWordTotalDict, docRepresentationsDict)
@@ -183,21 +172,7 @@ class DocCounter(object):
   # get list of documents (limit = self.nrDocsToReadLimit)
   # using DocReader attribute object
   def getSomeDocs(self) :
-    """
-    limit = self.nrDocsToReadLimit
-    d =  'meaningless init value'
-    docList = []
-    while d != None and limit > 0:
-      d =  self.docReader.getNextDocFromFiles()
-      if d != None:
-        limit -= 1
-        #print getDictString(d.fieldContents)
-        #print d.mainContentnt
-        #print d.ID
-        docList.append(d)
-    print "docReader.docCounter: %d" % self.docReader.docCounter
-    return docList
-    """
+    
     if self.docList != None:
       return self.docList
     elif self.docReaderManager != None:
@@ -261,19 +236,11 @@ class DocCounter(object):
       print "contextWordsToQueries len: %d" % len(contextWordsToQueries)
       print "docrepr. len: %s" % len(docRepresentationsDict)
       print "totalOccurrencePerQueryWord len: %s " % len(totalOccurrencePerQueryWord)
-
-      """
-      print "\nqwordinstances: %s" % utilities.getDictString(contextWordsToQueries)
-      print "\ndocrepr: %s" % utilities.getDictString(docRepresentations)
-      """
+      
       contextWordDictsList.append(contextWordsToQueries)
       totalContextWordCountsDictList.append(totalOccurrencePerQueryWord)
       docRepresentationsDictList.append(docRepresentationsDict)
 
-      """
-      print contextWordsToQueries['year']['world']
-      print contextWordsToQueries['year']['franc']
-      """
     return (contextWordDictsList, docRepresentationsDictList, totalContextWordCountsDictList)
 
 

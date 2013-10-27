@@ -2,14 +2,16 @@ from collections import defaultdict
 import math
 import copy 
 
+'''
+Calculates similarities between query terms and documents and writes these to a csv file to be used by Terrier
+'''
 def write_similarities_to_CSV(file_name, senses_dict, doc_vectors, queries, context_words, raw_queries, seperate_context):
-  # Denk dat ik hier ook nog de raw queries nodig heb om als query key te gebruiken.
-  similarities = calc_similarities(senses_dict, doc_vectors, queries, context_words, raw_queries, seperate_context)
-    
+  similarities = calc_similarities(senses_dict, doc_vectors, queries, context_words, raw_queries, seperate_context)    
   write_to_csv(similarities, file_name)
-  
-  
-  
+    
+'''
+Calculate the similarities for each query between query terms and documents
+'''  
 def calc_similarities(senses_dict, doc_vectors, queries, context_words, raw_queries, seperate_context):
   similarities = defaultdict(dict)
   for i in range(len(queries)):
@@ -19,7 +21,10 @@ def calc_similarities(senses_dict, doc_vectors, queries, context_words, raw_quer
     similarities[raw_query] = sim
   
   return similarities
-  
+
+'''
+Write the resulting similarities to file
+'''  
 def write_to_csv(similarities, file_name):
   f = open(file_name, 'w')
   for query, terms in similarities.items():
@@ -29,7 +34,10 @@ def write_to_csv(similarities, file_name):
         f.write(line)
 
   f.close()
- 
+
+'''
+Calculates similarities between query terms of 1 query and all documents
+'''  
 def get_similarity(doc_vectors, senses_dict, query, context_words, seperate_context):
     # Get distribution over senses for the query terms
     query_term_dist = query_term_distance_distribution(senses_dict, query, context_words, seperate_context)
@@ -38,6 +46,9 @@ def get_similarity(doc_vectors, senses_dict, query, context_words, seperate_cont
     # Get similarities between distributions
     return calc_distribution_similarities(query_term_dist, doc_term_dist, query)
 
+'''
+Calculates euclidean distance between two instances
+'''
 def eucl_distance(context, instance_i, instance_j):
     dist = 0
     for w in context:
@@ -51,28 +62,33 @@ def eucl_distance(context, instance_i, instance_j):
     dist = math.sqrt(float(dist))
 
     return dist
-    
+
+'''
+Calculates similarity between one query term and one document
+'''    
 def calc_distribution_similarities(query_term_dist, doc_term_dist, query):
   # distr_similarities term->doc->similarity
   distr_similarities = defaultdict(dict)
   for q in query:
     for doc, d in doc_term_dist.items():      
-      # print 'similarity for', doc, q
       if q in d:        
         distr_similarities[q][doc] = bhattacharyya_coeff(d[q], query_term_dist[q])
   
   return distr_similarities
 
+'''
+Calculates bhattacharyya coefficient between two distributions (here: two fuzzy assignments)
+'''
 def bhattacharyya_coeff(distribution_1, distribution_2):
   bhat_coeff = 0
-  # print 'distribution doc: ', distribution_1
-  # print 'distribution query: ', distribution_2
   for sense, value_1 in distribution_1.items():
     value_2 = distribution_2[sense]
     bhat_coeff += math.sqrt( value_1 * value_2 )  
-  # print 'distance:', bhat_dist
   return bhat_coeff
 
+'''
+Calculates fuzzy assignment of documents to word senses
+'''  
 def doc_term_distance_distribution(doc_vectors, senses_dict, query, context_words, seperate_context):
   
   distributions = defaultdict(dict)
@@ -96,6 +112,9 @@ def doc_term_distance_distribution(doc_vectors, senses_dict, query, context_word
   # Return result
   return distributions
     
+'''
+Calculates fuzzy assignment of query terms of one query to word senses
+'''    
 def query_term_distance_distribution(senses_dict, query, context_words, seperate_context):
   distributions = {}
   # For each query term
@@ -122,6 +141,9 @@ def query_term_distance_distribution(senses_dict, query, context_words, seperate
   # return result  
   return distributions
     
+'''
+Calculates fuzzy assignment between a vector and the vectors that represent word senses
+'''
 def get_distribution(senses, item, context_words):
   item_sense_dist = {}
   total_dist = 0

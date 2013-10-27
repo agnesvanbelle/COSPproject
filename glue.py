@@ -16,6 +16,9 @@ stopwordsFile = "stopwords.txt"
 
 statsDir = 'stats'
 
+'''
+Writes clusters to file
+'''
 def writeClusters(queriesSensesDict):
   try:
     f = open(statsDir + "/clusterresults.txt", "w")
@@ -31,6 +34,9 @@ def writeClusters(queriesSensesDict):
   except IOError:
     pass
 
+'''
+write statistics about occurrences to file
+'''    
 def writeStatsOccurrences(queryVectorDict) :
   try:
     f = open(statsDir + "/occstats.txt", "w")
@@ -50,6 +56,9 @@ def writeStatsOccurrences(queryVectorDict) :
   except IOError:
     pass
 
+'''
+Writes statistics about the resulting automatically generated word senses to file
+'''    
 def writeStatsClustering(queriesSensesDict) :
   try:
     f = open(statsDir + "/clusterstats.txt", "w")
@@ -69,6 +78,9 @@ def writeStatsClustering(queriesSensesDict) :
   except IOError:
     pass
 
+'''
+Writes statistics about the document to a file
+'''    
 def writeDocStats(docList, queryWords):
   total=0.0
   for d in docList:
@@ -92,7 +104,9 @@ def writeDocStats(docList, queryWords):
   print "avgLen: %2.2f" % avgLen
 
 
-
+'''
+Calls the right functions to parse the documents
+'''
 def getDocs(loadFileName=None, saveFileName=None):
 
   drm = docreader.DocReaderManager(docFileNames , stopwordsFile)
@@ -107,7 +121,9 @@ def getDocs(loadFileName=None, saveFileName=None):
 
   return (docList, queryWords, queriesList, queries)
 
-
+'''
+Calls the right functions to get the vector representations of documents, query occurrences and the used context words
+'''
 def makeVectors(queryWords, docList, vpt):
 
 
@@ -119,7 +135,9 @@ def makeVectors(queryWords, docList, vpt):
   
   return (queryDict, docDict, contextWords)
 
-
+'''
+Calls the right clustering functions
+'''
 def clusterQueryVectors(queryWords, allContextWords, queryVectorDict, variancePerTerm):
 
   k_values = range(2,7)
@@ -131,7 +149,10 @@ def clusterQueryVectors(queryWords, allContextWords, queryVectorDict, variancePe
   queriesSensesDict = scm.getResult()
 
   return queriesSensesDict
-
+  
+'''
+Calculates query term - document similarities using automatically generated word senses
+'''
 def automatic_similarities(variancePerTerm=False):
   similaritiesFileName = 'similarities.csv'
 
@@ -153,7 +174,9 @@ def automatic_similarities(variancePerTerm=False):
 
   similaritiesWriter.write_similarities_to_CSV(similaritiesFileName, queriesSensesDict, docVectorDict, queries, contextWords, raw_queries, variancePerTerm)
  
-
+'''
+Calculates query term - document similarities using supervised word senses
+'''
 def supervised_similarities(variancePerTerm=False):
 
   similaritiesFileName = 'similarities.csv'
@@ -175,7 +198,9 @@ def supervised_similarities(variancePerTerm=False):
 
   similaritiesWriter.write_similarities_to_CSV(similaritiesFileName, queriesSensesDict, docVectorDict, queries, contextWords, raw_queries, True)
 
-
+'''
+Parses arguments and calls the right functions according to parameters
+'''
 if __name__ == '__main__': #if this file is the argument to python
   parser = argparse.ArgumentParser(description='get the data for WSD', version='%(prog)s 1.0')
   parser.add_argument('automatic', type=str, help='get the data for WSD automatic or supervised. values: auto - supervised')

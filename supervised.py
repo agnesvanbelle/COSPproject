@@ -4,6 +4,9 @@ from sets import Set
 import re
 import docreader
 
+'''
+Generates supervised word senses based on WordNet
+'''
 def get_senses(raw_queries):
   senses = defaultdict(lambda : defaultdict( lambda : defaultdict(float)))
   totals = defaultdict(lambda : defaultdict(float))
@@ -22,16 +25,8 @@ def get_senses(raw_queries):
       word = re.sub('[^A-Za-z0-9_-]+', '', word)
       processed_q_word = processor.preprocessWord(word)
       if processed_q_word != '':
-        # print word, processed_q_word
         # get synsets if possible
         syns = wn.synsets(word)
-        #if len(syns)<2:
-          #senses[processed_q_word] = default
-         
-          # if len(syns) == 0:
-            # print 'not in wordnet:', word
-          # else:
-            # print 'only one sense:', word
         if len(syns) >= 2:
           # For each element in the synsets (= 1 sense)
           for syn in syns:
@@ -53,7 +48,6 @@ def get_senses(raw_queries):
   
   # Normalize
   for q_word, w_senses in senses.items():
-    #if w_senses != default:
     context_words[q_word] = list(context_words[q_word])
     for s_id, context in w_senses.items():
       for c_word in context.keys():

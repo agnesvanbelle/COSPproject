@@ -7,7 +7,10 @@ import time
 import multiprocessing
 import sys
 
-
+'''
+Class that manages the clustering process using different threads.
+Each thread handles the clustering process for one or more queries
+'''
 class SenseClusterManager(object):
   
   def __init__(self, queryTerms, queryVectorDict, contextWords, k_values, variancePerTerm):
@@ -64,7 +67,6 @@ class SenseClusterManager(object):
       
       result = t.getResultPerQuery()
       
-      #print "result of this thread: %s\n" % (utilities.getDictString(result))
       
       for q in result:
         self.finalDict[q] = result[q]
@@ -73,13 +75,18 @@ class SenseClusterManager(object):
   def getResult(self):
     return self.finalDict
   
-
+'''
+This class clusters the occurrences of one query term such that the centroids of those (= word senses) can be determined.
+'''
 class SenseClustering(threading.Thread):
 
 
   '''
+  queries = list of queries which are a list of query terms
   word_instances_per_query = dictionary of the form q_j -> {q_jk -> {w_i -> freq}} containing all occurences of a query word
-  list_context_word = list of the used context words
+  list_context_words = list of the used context words
+  list_of_k = list of different values of k for which you wish to do k-means clustering
+  variancePerTerm = parameter stating the type of variance you wish to use (seperate per query term or not)
   '''
   def __init__(self, queries, word_instances_per_query, list_of_k,  list_context_words, variancePerTerm):
     
@@ -97,27 +104,29 @@ class SenseClustering(threading.Thread):
     self.resultPerQuery = {}
     
   
-  def run(self):
+  '''
+  Manages the clustering for one query term by running buckshot clustering 
+  for each term if there is a sufficient amount of occurrences.
+  '''
+  def run(self):    
     
-    #print "running."
-    
+    # For each query term
     for q in self.queries:
       self.word_inst = self.word_instances_per_query[q]
       self.nr_instances = len(self.word_inst)
       
+      # Get the context words
       if self.variancePerTerm:
         self.con_words = self.list_context_words[q]
-        #print self.con_words
       else:
         self.con_words = self.list_context_words
-        
-        #print "self.con_words: %s" % self.con_words
-        
+      
+      # If there are sufficient instances of a query term
       if self.nr_instances > max(self.list_of_k):
-        #print "self.list_of_k: %s" % self.list_of_k
-        #print "self.nr_instances: %s" % self.nr_instances
+        # Run buckshot clustering
         self.resultPerQuery[q] = self.buckshot_clustering(self.list_of_k) # 'bla'
       else:
+        # Assume a single word sense
         single_cluster = defaultdict(list)
         for inst in self.word_inst:
           single_cluster[0].append(inst)
@@ -126,13 +135,17 @@ class SenseClustering(threading.Thread):
   def getResultPerQuery(self):
     return self.resultPerQuery
       
+  '''
+  Implements buckshot clustering for one query term.
+  Runs k-means for different values of k and returnes best
+  clustering based on cluster validation index.
+  list_of_k= list of values of k that the user would like to consider
+  '''  
   def buckshot_clustering(self, list_of_k):
     # Get the random sample for hierarchical clustering
     sample_size = int( math.sqrt(self.nr_instances))+1
     clusters_init = {}
-    occurrences = self.word_inst.keys()
-    
-    #print "occurrences: %s" % occurrences
+    occurrences = self.word_inst.keys()    
     
     for i in range(sample_size):
       index = random.randrange(len(occurrences))
@@ -145,13 +158,9 @@ class SenseClustering(threading.Thread):
 
     # Do k-means clustering for each k using the aquired seeds
     clusters = {}
-    #print "list_of_k: %s" % list_of_k
     for k in list_of_k:
       if k in seeds:
         clusters[k] = self.k_means_defined_startpoints(seeds[k])
-      #else:
-        #print "Removing k=%d b/c of initialization fail" % k
-        #list_of_k.remove(k) # sorry you no play
         
     best_v = float("inf")
     best_k = -1
@@ -163,12 +172,6 @@ class SenseClustering(threading.Thread):
         if validation_score<best_v:
           best_v = validation_score
           best_k = k
-     # print validation_score, k
-      #print
-
-    #print 'best k value: %d' %best_k
-    #print clusters[best_k][0]
-    #print utilities.getDictString(clusters[best_k][1])
     
     if best_k != -1:
       return clusters[best_k][1]
@@ -177,7 +180,10 @@ class SenseClustering(threading.Thread):
       for inst in self.word_inst:
         single_cluster[0].append(inst)
       return self.get_centroids(single_cluster)
-   
+  
+  '''
+  Calculate the validation index of a cluster
+  '''
   def calc_validation_index(self, assignment, centroids):
     # calculate sum of differences between centroids and cluster members
     total_wc_distance = 0
@@ -204,44 +210,36 @@ class SenseClustering(threading.Thread):
     # calculate validation index
     return (total_wc_distance + factor * total_bc_distance) / (min_dist + (1.0 / c))
 
-  # TODO add something so it still works in there's only 1 vector
-  def hierarchical_clustering_for_seeds(self, clusters, list_of_k):
-    
-    #print "clusters: %s" % clusters
+  '''
+  Perform hierarchical clustering on a set of instances
+  '''
+  def hierarchical_clustering_for_seeds(self, clusters, list_of_k):    
     
     distances = self.calc_all_eucl_distances(clusters)
     current_nr_clusters = len(clusters)
     min_nr_clusters = min(list_of_k)
     cluster_id = len(clusters)
     centroids = {}
-
+    
+    # while you still need fewer clusters (with respect to list_of_k)
     while current_nr_clusters>=min_nr_clusters:
-      # self.print_clusters(clusters)
-      # print
       current_pair = None
       current_dist = float("inf")
-      cluster_keys = clusters.keys()
+      cluster_keys = clusters.keys()      
       
-      #print "len(clusters): %d" % len(clusters)
-      
+      # For each combination of clusters
       for i in range(len(clusters)):
-        for j in range(i+1, len(clusters)):
-          
-          #print "i+1, len(clusters): %d" % j
+        for j in range(i+1, len(clusters)):          
           
           # Calculate cluster distance
           c1 = cluster_keys[i]
           c2 = cluster_keys[j]
           dist = self.calc_cluster_distance(clusters[c1]+clusters[c2], distances)
           
-          #print "dist: %2.2f" % dist
-          #print "c1: %s " % c1
-          #print "c2: %s " % c2
-          
+          # Evaluate if this distance is smaller than current smallest
           if dist < current_dist:
             current_dist = dist
             current_pair = (c1,c2)
-
       
       # cluster two closest clusters
       clusters[cluster_id] = clusters[current_pair[0]]+clusters[current_pair[1]]
@@ -257,7 +255,10 @@ class SenseClustering(threading.Thread):
         centroids[current_nr_clusters] = self.get_centroids(clusters)
 
     return centroids
-
+  
+  '''
+  Prints clusters in a readable way
+  '''
   def print_clusters(self, clusters):
     for c in clusters:
       l = clusters[c]
@@ -266,6 +267,9 @@ class SenseClustering(threading.Thread):
         print(l[i]),
       print('\n'),
 
+  '''
+  Calculates centroids for a given set of clusters
+  '''  
   def get_centroids(self, clusters):
     centroids = {}
     for c in clusters:
@@ -281,6 +285,7 @@ class SenseClustering(threading.Thread):
     return centroids
 
   '''
+  Performs k-means clustering with pre defined initial centroids
   centroids: initial centroids
   '''
   def k_means_defined_startpoints(self, centroids):
@@ -322,7 +327,9 @@ class SenseClustering(threading.Thread):
 
       return(old_assignment, centroids)
 
-
+  '''
+  Calculates euclidean distance between all instances
+  '''
   def calc_all_eucl_distances(self, instance_ids):
     distances = defaultdict(lambda : defaultdict(int))
     for ind_i in range(len(instance_ids)):
@@ -335,6 +342,9 @@ class SenseClustering(threading.Thread):
         distances[j][i] = dist
     return distances
 
+  '''
+  Calculates the euclidean distance between two instances
+  '''
   def eucl_distance(self, instance_i, instance_j):
     dist = 0
     for w in self.con_words:
@@ -348,7 +358,10 @@ class SenseClustering(threading.Thread):
     dist = math.sqrt(float(dist))
 
     return dist
-
+  
+  '''
+  Calculates average cluster distance
+  '''
   def calc_cluster_distance(self, c, distances):
     factor = float(1)/ ( (math.pow(len(c),2)- len(c))/2 )
     dist = 0

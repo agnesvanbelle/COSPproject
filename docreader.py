@@ -192,7 +192,7 @@ class DocReader(threading.Thread):
         return thisDoc
 
 
-
+# Manages the process of reading and processing the documents
 class DocReaderManager(object):
 
 
