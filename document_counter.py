@@ -100,13 +100,13 @@ class DocCounter(object):
     self.docFileName = docFileName
     self.docList = docList
     self.variancePerTerm = variancePerTerm
-    
+
     self.querySensesDict = None
     self.docInstancesDict = None
     self.finalContextWords = None
 
-    
-    
+
+
   # return the query sense dict
   # q_j -> k -> w_i -> count  (k = occurrance nr. of query word)
   def getQuerySensesDict(self):
@@ -149,26 +149,26 @@ class DocCounter(object):
       (contextWordDict, docRepresentationsDict, cwList) =  self.dimReduction(contextWordDict, contextWordTotalDict, docRepresentationsDict)
     else:
       (contextWordDict, docRepresentationsDict, cwList_all) =  self.dimReduction_separate(contextWordDict, contextWordTotalDict, docRepresentationsDict)
-    
-    
+
+
     #print "len(contextWordDict): %d " % len(contextWordDict)
-    
-    
-    
+
+
+
     contextWordDict = self.turnAround(contextWordDict)
 
     print "len(contextWordDict): %d " % len(contextWordDict)
-    
+
     self.normalizeToProbs(contextWordDict, docRepresentationsDict)
-         
+
     self.querySensesDict = contextWordDict
     self.docInstancesDict = docRepresentationsDict
-    
+
     if not self.variancePerTerm:
       self.finalContextWords = cwList
     else:
       self.finalContextWords = cwList_all
-      
+
   # get list of documents (limit = self.nrDocsToReadLimit)
   # using DocReader attribute object
   def getSomeDocs(self) :
@@ -265,8 +265,8 @@ class DocCounter(object):
             for w in docRepresentationsDict[d][q]:
               docRepresentationsDict[d][q][w] = docRepresentationsDict[d][q][w] / float(counter)
 
- 
-              
+
+
   # re-representing the w->q format of contexWordDict to q->w format
   # for the query sense dict
   def turnAround(self, contextWordDict):
@@ -282,7 +282,7 @@ class DocCounter(object):
 
     return newContextWordDict
 
-  
+
   # merge raw counts divided over threads
   # @see self.getRawCounts
   def mergeContextWordDicts(self, listDicts, listDictsTotal, listDocDicts):
@@ -334,65 +334,66 @@ class DocCounter(object):
   # same as dimReduction but contextwords with highest varaiance
   # are determined per query term
   def dimReduction_separate(self, contextWordDict, contextWordTotalDict, docRepresentationsDict):
-    
+
     print "dimReduction_separate"
-    
+
     cwList_all = self.getContextWordsLargestVariance_separate( contextWordDict)
 
     print "got cwList_all"
-    
+
     newContextWordDict  = defaultdict(lambda : defaultdict(lambda : defaultdict(int)))
     newDocRepresentationsDict = defaultdict(lambda : defaultdict(lambda : defaultdict(int)))
 
     #print utilities.getDictString(cwList_all)
-    
-    
+
+
     for query in cwList_all:
-      
+
       print query
       print len(cwList_all[query])
-      
+
       for k in cwList_all[query]:
 
         newContextWordDict[k][query] = copy.deepcopy(contextWordDict[k][query])
-
+        #contextWordDict[k][query].pop()
         # perhaps this will be slow
-        for doc in docRepresentationsDict:
-          for queryWord in docRepresentationsDict[doc]:
-            newDocRepresentationsDict[doc][queryWord][k] = copy.deepcopy(docRepresentationsDict[doc][queryWord][k])
+        #for doc in docRepresentationsDict:
+         # for queryWord in docRepresentationsDict[doc]:
+          #  newDocRepresentationsDict[doc][queryWord][k] = copy.deepcopy(docRepresentationsDict[doc][queryWord][k])
 
     del contextWordDict
-    del docRepresentationsDict
+    #del docRepresentationsDict
+    newDocRepresentationsDict = docRepresentationsDict
 
     return (newContextWordDict, newDocRepresentationsDict, cwList_all)
 
 
   #@see self.dimReduction_seperate
   def getContextWordsLargestVariance_separate(self, contextWordDict):
-    
+
     cwList = defaultdict(list)
-    
+
     for queryWord in self.queryWords:
-      
+
       print queryWord
-      
+
       heap = []
-      
+
       smallestVariance = sys.maxint
-      
+
       #print "\n\nqueryWord: %s" % queryWord
-      
+
       for contextWord in contextWordDict:
         l = []
         nr_occ = len(contextWordDict[contextWord][queryWord])
-        
+
         #if nr_occ == 1:
         #   sys.stdout.write(contextWord + ':' + ('%1.4f' % 1) + ', ')
-        
+
         if nr_occ > 0:
-          
+
           #print "contextWord:%s, queryWord:%s, nr_occ: %d" % (contextWord, queryWord, nr_occ)
-          
+
           for occ, freq in contextWordDict[contextWord][queryWord].iteritems():
             l.append(freq)
 
@@ -410,9 +411,9 @@ class DocCounter(object):
             if variance > smallestVariance:
               heapq.heappushpop(heap, (variance, contextWord))
               smallestVariance = heap[0][0]
-  
+
       #print "len(heap): %d" % len(heap)
-      
+
       while heap:
         cw = heapq.heappop(heap) # order: small to large
         #sys.stdout.write(cw[1] + ':' + ('%1.4f' % cw[0]) + ', ')
