@@ -1,0 +1,64 @@
+set
+	45
+cancer
+	5
+hard
+	22
+site
+	4
+boycott
+	2
+product
+	6
+anti
+	2
+sport
+	9
+film
+	7
+fee
+	3
+price
+	9
+paint
+	7
+attack
+	15
+treatment
+	4
+strike
+	27
+brand
+	10
+tighten
+	4
+oil
+	6
+dope
+	7
+visa
+	3
+student
+	2
+atom
+	2
+world
+	9
+sex
+	6
+super
+	5
+dog
+	8
+drug
+	3
+eta
+	2
+model
+	16
+global
+	2
+italian
+	3
+Average:
+	8.22580645161
